@@ -1,0 +1,431 @@
+---
+// Hardcoded confetti particles — deterministic, no Math.random() at runtime
+const confetti = [
+  { color: '#5BBF3E', left: '4%',  delay: '0s',    dur: '4.2s', size: 14, shape: 'circle' },
+  { color: '#FFD447', left: '10%', delay: '0.4s',  dur: '3.8s', size: 10, shape: 'rect'   },
+  { color: '#FF6B6B', left: '17%', delay: '0.8s',  dur: '5.1s', size: 12, shape: 'circle' },
+  { color: '#4BBEF5', left: '24%', delay: '0.2s',  dur: '4.5s', size: 8,  shape: 'rect'   },
+  { color: '#C97BFF', left: '31%', delay: '1.1s',  dur: '3.6s', size: 16, shape: 'circle' },
+  { color: '#FFD447', left: '38%', delay: '0.6s',  dur: '4.8s', size: 10, shape: 'rect'   },
+  { color: '#5BBF3E', left: '45%', delay: '1.4s',  dur: '5.3s', size: 11, shape: 'circle' },
+  { color: '#FF6B6B', left: '52%', delay: '0.3s',  dur: '4.0s', size: 9,  shape: 'rect'   },
+  { color: '#4BBEF5', left: '58%', delay: '1.7s',  dur: '3.9s', size: 14, shape: 'circle' },
+  { color: '#C97BFF', left: '64%', delay: '0.9s',  dur: '5.5s', size: 8,  shape: 'rect'   },
+  { color: '#FFD447', left: '71%', delay: '0.1s',  dur: '4.3s', size: 13, shape: 'circle' },
+  { color: '#5BBF3E', left: '77%', delay: '1.3s',  dur: '3.7s', size: 10, shape: 'rect'   },
+  { color: '#FF6B6B', left: '83%', delay: '0.5s',  dur: '5.0s', size: 12, shape: 'circle' },
+  { color: '#4BBEF5', left: '89%', delay: '1.9s',  dur: '4.6s', size: 9,  shape: 'rect'   },
+  { color: '#C97BFF', left: '95%', delay: '0.7s',  dur: '3.5s', size: 15, shape: 'circle' },
+  { color: '#FFD447', left: '7%',  delay: '2.1s',  dur: '4.9s', size: 8,  shape: 'circle' },
+  { color: '#FF6B6B', left: '21%', delay: '1.6s',  dur: '3.4s', size: 11, shape: 'rect'   },
+  { color: '#5BBF3E', left: '55%', delay: '2.4s',  dur: '5.2s', size: 9,  shape: 'circle' },
+  { color: '#4BBEF5', left: '68%', delay: '2.8s',  dur: '4.1s', size: 13, shape: 'rect'   },
+  { color: '#C97BFF', left: '91%', delay: '2.2s',  dur: '3.8s', size: 10, shape: 'circle' },
+];
+---
+
+<section class="hero">
+  <!-- Confetti layer -->
+  <div class="confetti-layer" aria-hidden="true">
+    {confetti.map((p) => (
+      <span
+        class={`confetti-piece ${p.shape === 'circle' ? 'is-circle' : ''}`}
+        style={`
+          background: ${p.color};
+          left: ${p.left};
+          width: ${p.size}px;
+          height: ${p.size}px;
+          animation-delay: ${p.delay};
+          animation-duration: ${p.dur};
+        `}
+      />
+    ))}
+  </div>
+
+  <!-- Hero content -->
+  <div class="hero-content">
+    <!-- Level tag -->
+    <div class="level-tag animate-on-scroll">
+      <span class="level-dot"></span>
+      LEVEL 1 &nbsp;·&nbsp; SELAMAT DATANG
+    </div>
+
+    <!-- Stars decoration -->
+    <div class="star-row" aria-hidden="true">
+      <span class="star">⭐</span>
+      <span class="star star--lg">⭐</span>
+      <span class="star">⭐</span>
+    </div>
+
+    <!-- Baby name -->
+    <h1 class="baby-name animate-on-scroll">
+      <span class="name-word name-emir">Emir</span>
+      <span class="name-word name-ayden">Ayden</span>
+      <span class="name-word name-mateen">Mateen</span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="subtitle animate-on-scroll">
+      🍼 Putra dari
+    </p>
+    <p class="parents animate-on-scroll">
+      Andre Pratama &amp; Syaras Saryang Putri
+    </p>
+
+    <!-- XP bar -->
+    <div class="xp-bar-wrapper animate-on-scroll" aria-hidden="true">
+      <div class="xp-bar-label">
+        <span>✨ Kebahagiaan</span>
+        <span>72 / 100 XP</span>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-wrapper animate-on-scroll">
+      <p class="countdown-label">Menghitung hari menuju acara</p>
+      <div id="cd-boxes" class="cd-boxes">
+        <div class="cd-box">
+          <span id="cd-hari" class="cd-digit">--</span>
+          <span class="cd-unit">Hari</span>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box">
+          <span id="cd-jam" class="cd-digit">--</span>
+          <span class="cd-unit">Jam</span>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box">
+          <span id="cd-menit" class="cd-digit">--</span>
+          <span class="cd-unit">Menit</span>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box">
+          <span id="cd-detik" class="cd-digit">--</span>
+          <span class="cd-unit">Detik</span>
+        </div>
+      </div>
+      <p id="cd-done" class="cd-done" style="display:none">🎉 Selamat! Acara sudah berlangsung!</p>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint" aria-hidden="true">
+      <span class="scroll-arrow">↓</span>
+      <span class="scroll-text">Gulir untuk melihat undangan</span>
+    </div>
+  </div>
+</section>
+
+<!-- Wave divider -->
+<div class="wave-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1350,20 1440,40 L1440,80 L0,80 Z" fill="#F0EBE3"/>
+  </svg>
+</div>
+
+<style>
+  /* ---- Hero Section ---- */
+  .hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 30%, #7FD460 0%, #5BBF3E 40%, #3E8A28 100%);
+    padding: 2rem 1rem 6rem;
+  }
+
+  /* ---- Confetti ---- */
+  .confetti-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    top: -20px;
+    border-radius: 3px;
+    animation: confetti-fall linear infinite;
+  }
+
+  .confetti-piece.is-circle {
+    border-radius: 50%;
+  }
+
+  /* ---- Content ---- */
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    max-width: 700px;
+    width: 100%;
+  }
+
+  /* ---- Level tag ---- */
+  .level-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.22);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 9999px;
+    padding: 5px 16px;
+    backdrop-filter: blur(6px);
+  }
+
+  .level-dot {
+    width: 8px;
+    height: 8px;
+    background: #FFD447;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  /* ---- Stars ---- */
+  .star-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .star {
+    font-size: 1.4rem;
+    animation: star-spin 6s linear infinite;
+    display: inline-block;
+  }
+
+  .star--lg {
+    font-size: 2rem;
+    animation-duration: 4s;
+  }
+
+  /* ---- Baby name ---- */
+  .baby-name {
+    font-size: clamp(2.8rem, 9vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3em;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+  }
+
+  .name-word {
+    display: inline-block;
+    padding: 0.06em 0.25em;
+    border-radius: 18px;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .name-emir {
+    background: linear-gradient(145deg, #7AD4FF, #4BBEF5);
+    color: #fff;
+    box-shadow:
+      0 6px 0 #2A8FCC,
+      0 10px 20px rgba(0,0,0,0.2),
+      inset 0 3px 8px rgba(255,255,255,0.5);
+    animation-delay: 0s;
+  }
+
+  .name-ayden {
+    background: linear-gradient(145deg, #FF9494, #FF6B6B);
+    color: #fff;
+    box-shadow:
+      0 6px 0 #CC4A4A,
+      0 10px 20px rgba(0,0,0,0.2),
+      inset 0 3px 8px rgba(255,255,255,0.5);
+    animation-delay: 0.5s;
+  }
+
+  .name-mateen {
+    background: linear-gradient(145deg, #FFE580, #FFD447);
+    color: #3C3C3C;
+    box-shadow:
+      0 6px 0 #CCA000,
+      0 10px 20px rgba(0,0,0,0.2),
+      inset 0 3px 8px rgba(255,255,255,0.5);
+    animation-delay: 1s;
+  }
+
+  /* ---- Subtitle & Parents ---- */
+  .subtitle {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+    margin-bottom: -0.6rem;
+  }
+
+  .parents {
+    font-size: clamp(1.1rem, 3.5vw, 1.45rem);
+    font-weight: 600;
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 16px;
+    padding: 8px 24px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ---- XP Bar ---- */
+  .xp-bar-wrapper {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .xp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 6px;
+  }
+
+  .xp-bar-track {
+    height: 18px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 9999px;
+    overflow: hidden;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.25);
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FFE580, #FFD447);
+    border-radius: 9999px;
+    animation: xp-fill 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+    box-shadow: 0 2px 8px rgba(255, 212, 71, 0.6);
+  }
+
+  /* ---- Countdown ---- */
+  .countdown-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .countdown-label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .cd-boxes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cd-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.18));
+    border: 1.5px solid rgba(255,255,255,0.45);
+    border-radius: 16px;
+    padding: 10px 16px;
+    min-width: 68px;
+    backdrop-filter: blur(6px);
+    box-shadow:
+      0 4px 0 rgba(0,0,0,0.15),
+      0 8px 16px rgba(0,0,0,0.15),
+      inset 0 2px 6px rgba(255,255,255,0.4);
+  }
+
+  .cd-digit {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .cd-unit {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .cd-sep {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 16px;
+  }
+
+  .cd-done {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #FFD447;
+  }
+
+  /* ---- Scroll hint ---- */
+  .scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 0.5rem;
+  }
+
+  .scroll-arrow {
+    font-size: 1.6rem;
+    color: rgba(255,255,255,0.8);
+    animation: bounce-arrow 1.8s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .scroll-text {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  /* ---- Wave divider ---- */
+  .wave-divider {
+    margin-top: -2px;
+    background: radial-gradient(ellipse at 50% 30%, #7FD460 0%, #5BBF3E 40%, #3E8A28 100%);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .cd-box {
+      min-width: 58px;
+      padding: 8px 12px;
+    }
+    .cd-digit {
+      font-size: 1.6rem;
+    }
+    .cd-boxes {
+      gap: 5px;
+    }
+    .cd-sep {
+      font-size: 1.4rem;
+    }
+  }
+</style>

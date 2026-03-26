@@ -1,17 +1,98 @@
 ---
-
+import '../styles/global.css';
+import HeroSection from '../components/HeroSection.astro';
+import InvitationSection from '../components/InvitationSection.astro';
+import NameMeanings from '../components/NameMeanings.astro';
+import GallerySection from '../components/GallerySection.astro';
+import DirectionSection from '../components/DirectionSection.astro';
+import GuestbookSection from '../components/GuestbookSection.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Undangan Akikah Emir Ayden Mateen — Sabtu, 4 April 2026 di Batang Kuis" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>Undangan Akikah · Emir Ayden Mateen</title>
+  </head>
+  <body>
+    <main>
+      <HeroSection />
+      <InvitationSection />
+      <NameMeanings />
+      <GallerySection />
+      <DirectionSection />
+      <GuestbookSection />
+    </main>
+  </body>
 </html>
+
+<!-- Countdown Timer -->
+<script>
+  const target = new Date('2026-04-04T00:00:00+07:00');
+
+  function pad(n: number): string {
+    return String(n).padStart(2, '0');
+  }
+
+  function tick() {
+    const diff = target.getTime() - Date.now();
+
+    const hariEl  = document.getElementById('cd-hari');
+    const jamEl   = document.getElementById('cd-jam');
+    const menitEl = document.getElementById('cd-menit');
+    const detikEl = document.getElementById('cd-detik');
+    const doneEl  = document.getElementById('cd-done');
+    const boxesEl = document.getElementById('cd-boxes');
+
+    if (!hariEl || !jamEl || !menitEl || !detikEl) return;
+
+    if (diff <= 0) {
+      if (boxesEl) boxesEl.style.display = 'none';
+      if (doneEl)  doneEl.style.display  = 'block';
+      return;
+    }
+
+    const totalSec = Math.floor(diff / 1000);
+    const hari  = Math.floor(totalSec / 86400);
+    const jam   = Math.floor((totalSec % 86400) / 3600);
+    const menit = Math.floor((totalSec % 3600) / 60);
+    const detik = totalSec % 60;
+
+    const prevDetik = detikEl.textContent;
+    hariEl.textContent  = pad(hari);
+    jamEl.textContent   = pad(jam);
+    menitEl.textContent = pad(menit);
+    detikEl.textContent = pad(detik);
+
+    if (prevDetik !== detikEl.textContent) {
+      detikEl.style.animation = 'none';
+      void detikEl.offsetHeight;
+      detikEl.style.animation = 'count-pop 0.3s ease-out';
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>
+
+<!-- Scroll Reveal -->
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+
+  document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+    observer.observe(el);
+  });
+</script>

@@ -1,0 +1,233 @@
+---
+const names = [
+  {
+    word:    'Emir',
+    arabic:  'أَمِير',
+    meaning: 'Pangeran / Pemimpin',
+    origin:  'Bahasa Arab',
+    desc:    'Seseorang yang memimpin dengan bijak, penuh wibawa, dan dicintai oleh orang-orang di sekitarnya.',
+    icon:    '👑',
+    badge:   'ROYALTY',
+    color:   'var(--color-blue)',
+    colorDark:  'var(--color-blue-dark)',
+    colorLight: 'var(--color-blue-light)',
+    textColor: '#fff',
+    badgeBg: 'rgba(255,255,255,0.25)',
+  },
+  {
+    word:    'Ayden',
+    arabic:  'آيْدَن',
+    meaning: 'Api Kecil',
+    origin:  'Bahasa Turki / Gaelic',
+    desc:    'Semangat yang menyala-nyala, penuh energi dan kehangatan yang menerangi orang di sekitarnya.',
+    icon:    '🔥',
+    badge:   'SPIRIT',
+    color:   'var(--color-coral)',
+    colorDark:  'var(--color-coral-dark)',
+    colorLight: 'var(--color-coral-light)',
+    textColor: '#fff',
+    badgeBg: 'rgba(255,255,255,0.25)',
+  },
+  {
+    word:    'Mateen',
+    arabic:  'مَتِين',
+    meaning: 'Kuat / Kokoh',
+    origin:  'Bahasa Arab (Asmaul Husna)',
+    desc:    'Teguh dan kukuh, berdiri kuat dalam segala ujian kehidupan dengan iman yang mantap.',
+    icon:    '💪',
+    badge:   'STRENGTH',
+    color:   'var(--color-green)',
+    colorDark:  'var(--color-green-dark)',
+    colorLight: 'var(--color-green-light)',
+    textColor: '#fff',
+    badgeBg: 'rgba(255,255,255,0.25)',
+  },
+] as const;
+---
+
+<section class="section-wrapper meanings-section">
+  <div class="section-inner">
+    <div class="section-label animate-on-scroll">ACHIEVEMENT · MAKNA NAMA</div>
+
+    <h2 class="section-heading animate-on-scroll">
+      Makna di Balik Setiap Nama
+    </h2>
+    <p class="section-sub animate-on-scroll">
+      Setiap kata dipilih dengan penuh cinta dan doa 🤲
+    </p>
+
+    <div class="names-grid">
+      {names.map((n, i) => (
+        <article
+          class="name-card animate-on-scroll"
+          style={`
+            background: linear-gradient(145deg, ${n.colorLight} 0%, ${n.color} 100%);
+            box-shadow:
+              0 10px 0 ${n.colorDark},
+              0 16px 28px rgba(0,0,0,0.18),
+              inset 0 -5px 10px rgba(0,0,0,0.10),
+              inset 0 5px 12px rgba(255,255,255,0.55);
+            animation-delay: ${i * 0.15}s;
+          `}
+        >
+          <!-- Badge -->
+          <div class="name-badge" style={`background: ${n.badgeBg}; color: ${n.textColor};`}>
+            {n.badge}
+          </div>
+
+          <!-- Emoji icon -->
+          <div class="name-icon">{n.icon}</div>
+
+          <!-- Arabic -->
+          <p
+            class="name-arabic"
+            lang="ar"
+            dir="rtl"
+            style={`color: rgba(255,255,255,0.9);`}
+          >
+            {n.arabic}
+          </p>
+
+          <!-- Name -->
+          <h3 class="name-word" style={`color: ${n.textColor};`}>{n.word}</h3>
+
+          <!-- Meaning -->
+          <div class="name-meaning-pill">
+            <span class="name-meaning-text">{n.meaning}</span>
+          </div>
+
+          <!-- Origin -->
+          <p class="name-origin" style={`color: rgba(255,255,255,0.75);`}>{n.origin}</p>
+
+          <!-- Description -->
+          <p class="name-desc" style={`color: rgba(255,255,255,0.9);`}>{n.desc}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .meanings-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .section-heading {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Grid */
+  .names-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  /* Name card — colored clay */
+  .name-card {
+    border-radius: 28px;
+    padding: 28px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    cursor: default;
+    transition: transform 0.2s ease;
+  }
+
+  .name-card:hover {
+    animation: wiggle 0.5s ease;
+  }
+
+  /* Badge chip */
+  .name-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+
+  /* Emoji */
+  .name-icon {
+    font-size: 3.2rem;
+    line-height: 1;
+    animation: float 3.5s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  /* Arabic text */
+  .name-arabic {
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Transliterated name */
+  .name-word {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    line-height: 1;
+  }
+
+  /* Meaning pill */
+  .name-meaning-pill {
+    background: rgba(255,255,255,0.28);
+    border: 1.5px solid rgba(255,255,255,0.45);
+    border-radius: 9999px;
+    padding: 5px 18px;
+    backdrop-filter: blur(4px);
+  }
+
+  .name-meaning-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* Origin */
+  .name-origin {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Description */
+  .name-desc {
+    font-size: 0.88rem;
+    font-weight: 400;
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 600px) {
+    .names-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
