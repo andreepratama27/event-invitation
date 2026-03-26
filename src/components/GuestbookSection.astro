@@ -1,0 +1,326 @@
+---
+---
+
+<section class="section-wrapper guestbook-section">
+  <div class="section-inner">
+    <div class="section-label animate-on-scroll">LEADERBOARD · UCAPAN</div>
+
+    <h2 class="section-heading animate-on-scroll">
+      Tulis Ucapanmu
+    </h2>
+    <p class="section-sub animate-on-scroll">
+      Doa dan harapanmu adalah hadiah terindah untuk Emir 💜
+    </p>
+
+    <div class="board-card clay-purple animate-on-scroll">
+      <!-- Card header -->
+      <div class="card-header">
+        <span class="card-header-icon">⭐</span>
+        <div>
+          <p class="card-header-pre">Buku Tamu</p>
+          <p class="card-header-title">Kirim Ucapan & Doa</p>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="card-body">
+        <form id="guestbook-form" class="guestbook-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="guest-name">
+              👤 Nama Kamu
+            </label>
+            <input
+              id="guest-name"
+              class="form-input"
+              type="text"
+              name="name"
+              required
+              minlength="2"
+              placeholder="Tulis namamu di sini..."
+              autocomplete="name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guest-message">
+              💬 Ucapan & Doa
+            </label>
+            <textarea
+              id="guest-message"
+              class="form-input form-textarea"
+              name="message"
+              required
+              minlength="5"
+              rows="4"
+              placeholder="Tuliskan doa dan harapanmu untuk Emir Ayden Mateen..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="clay-btn clay-btn--green submit-btn">
+            ⭐ Kirim Ucapan
+          </button>
+        </form>
+
+        <!-- Thank-you state (hidden initially) -->
+        <div id="guestbook-success" class="success-state" hidden>
+          <div class="success-icon">🎉</div>
+          <h3 class="success-title">Terima kasih!</h3>
+          <p class="success-text">Doa dan ucapanmu sudah kami terima. Semoga Allah SWT membalas kebaikanmu. 🤲</p>
+          <div class="success-stars" aria-hidden="true">⭐ ⭐ ⭐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <div class="footer-blessing animate-on-scroll">
+      <p>Jazakumullahu Khairan Katsiran</p>
+      <p class="footer-parents">Andre Pratama &amp; Syaras Saryang Putri</p>
+      <p class="footer-small">beserta keluarga besar 🌙</p>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  const form = document.getElementById('guestbook-form');
+  const success = document.getElementById('guestbook-success');
+
+  if (form && success) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const nameEl = document.getElementById('guest-name');
+      const msgEl  = document.getElementById('guest-message');
+
+      if (!nameEl || !msgEl) return;
+
+      const name = nameEl.value.trim();
+      const msg  = msgEl.value.trim();
+
+      if (!name || name.length < 2) {
+        nameEl.focus();
+        return;
+      }
+      if (!msg || msg.length < 5) {
+        msgEl.focus();
+        return;
+      }
+
+      form.style.opacity = '0';
+      form.style.transform = 'scale(0.95)';
+      setTimeout(function () {
+        form.hidden = true;
+        success.hidden = false;
+        success.style.opacity = '0';
+        success.style.transform = 'scale(0.8)';
+        // trigger reflow then animate in
+        void success.offsetHeight;
+        success.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        success.style.opacity = '1';
+        success.style.transform = 'scale(1)';
+      }, 300);
+    });
+  }
+</script>
+
+<style>
+  .guestbook-section {
+    padding-top: 4rem;
+    padding-bottom: 5rem;
+  }
+
+  .section-heading {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Purple clay card */
+  .board-card {
+    border-radius: 28px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  /* Header */
+  .card-header {
+    background: linear-gradient(135deg, #9A50D4, #B56EEF);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: inset 0 -3px 8px rgba(0,0,0,0.12);
+  }
+
+  .card-header-icon {
+    font-size: 2rem;
+    animation: float 3.5s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .card-header-pre {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Form body */
+  .card-body {
+    background: linear-gradient(145deg, #fdf8ff 0%, #f5ecff 100%);
+    padding: 28px 24px;
+  }
+
+  /* Form */
+  .guestbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #7A4FA0;
+    letter-spacing: 0.03em;
+  }
+
+  .form-input {
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-dark);
+    background: linear-gradient(145deg, #ffffff, #f9f4ff);
+    border: 2.5px solid #DFA8FF;
+    border-radius: 14px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow:
+      inset 0 2px 6px rgba(201, 123, 255, 0.1),
+      0 2px 8px rgba(0,0,0,0.04);
+    resize: none;
+    width: 100%;
+  }
+
+  .form-input::placeholder {
+    color: #C4A8D8;
+    font-weight: 400;
+  }
+
+  .form-input:focus {
+    border-color: var(--color-purple);
+    box-shadow:
+      inset 0 2px 6px rgba(201, 123, 255, 0.15),
+      0 0 0 3px rgba(201, 123, 255, 0.2);
+  }
+
+  .form-input:valid:not(:placeholder-shown) {
+    border-color: var(--color-green);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+
+  /* Submit button */
+  .submit-btn {
+    align-self: center;
+    min-width: 200px;
+    font-size: 1.05rem;
+  }
+
+  /* Success state */
+  .success-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 4rem;
+    animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .success-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-purple);
+  }
+
+  .success-text {
+    font-size: 1rem;
+    color: var(--color-muted);
+    max-width: 360px;
+    line-height: 1.6;
+  }
+
+  .success-stars {
+    font-size: 1.6rem;
+    letter-spacing: 0.3em;
+    animation: float 2.5s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  /* Blessing footer */
+  .footer-blessing {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 1.5rem 0;
+    border-top: 2px dashed rgba(0,0,0,0.08);
+  }
+
+  .footer-blessing p {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+
+  .footer-parents {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: var(--color-purple) !important;
+  }
+
+  .footer-small {
+    font-size: 0.85rem !important;
+    font-weight: 400 !important;
+    color: var(--color-muted) !important;
+  }
+
+  @media (max-width: 480px) {
+    .card-header, .card-body {
+      padding-left: 18px;
+      padding-right: 18px;
+    }
+  }
+</style>

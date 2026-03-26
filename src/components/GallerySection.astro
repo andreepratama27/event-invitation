@@ -1,0 +1,189 @@
+---
+// Placeholder gallery items — swap with real <img> when photos are ready
+// Place real photos in public/images/ and use src="/images/baby1.jpg"
+const photos = [
+  { label: 'Momen Pertama',  color: '#4BBEF5', bg: '#7AD4FF', span: 'tall'   },
+  { label: 'Senyum Bayi',    color: '#FF6B6B', bg: '#FF9494', span: 'wide'   },
+  { label: 'Tidur Nyenyak',  color: '#5BBF3E', bg: '#7FD460', span: 'square' },
+  { label: 'Bersama Ayah',   color: '#C97BFF', bg: '#DFA8FF', span: 'tall'   },
+  { label: 'Bersama Ibu',    color: '#FFD447', bg: '#FFE580', span: 'square' },
+  { label: 'Keluarga Kecil', color: '#FF6B6B', bg: '#FF9494', span: 'wide'   },
+];
+---
+
+<section class="section-wrapper gallery-section">
+  <div class="section-inner">
+    <div class="section-label animate-on-scroll">ALBUM · FOTO EMIR</div>
+
+    <h2 class="section-heading animate-on-scroll">
+      Momen Berharga Bersama Emir
+    </h2>
+    <p class="section-sub animate-on-scroll">
+      Setiap foto menyimpan sejuta kenangan 📸
+    </p>
+
+    <div class="gallery-grid animate-on-scroll">
+      {photos.map((p, i) => (
+        <div
+          class={`polaroid polaroid--${p.span} ${i % 2 === 0 ? 'tilt-left' : 'tilt-right'}`}
+        >
+          <div
+            class="photo-placeholder"
+            style={`background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`}
+            aria-label={p.label}
+          >
+            <div class="shimmer-overlay"></div>
+            <span class="photo-emoji">📷</span>
+          </div>
+          <p class="polaroid-caption">{p.label}</p>
+        </div>
+      ))}
+    </div>
+
+    <p class="gallery-note animate-on-scroll">
+      ✨ Foto akan segera hadir — nantikan momen spesial Emir!
+    </p>
+  </div>
+</section>
+
+<style>
+  .gallery-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    background: linear-gradient(180deg, var(--color-bg) 0%, #E8E0D5 100%);
+  }
+
+  .section-heading {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Masonry-style grid */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 180px;
+    gap: 20px;
+  }
+
+  /* Polaroid frame */
+  .polaroid {
+    background: linear-gradient(145deg, #ffffff 0%, #f5f0ea 100%);
+    border-radius: 12px;
+    padding: 10px 10px 38px;
+    box-shadow:
+      0 8px 0 #d4cdc5,
+      0 14px 24px rgba(0,0,0,0.16),
+      inset 0 -3px 8px rgba(0,0,0,0.06),
+      inset 0 4px 10px rgba(255,255,255,0.9);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+
+  .polaroid:hover {
+    transform: scale(1.04) rotate(0deg) !important;
+    z-index: 2;
+  }
+
+  .tilt-left  { transform: rotate(-1.5deg); }
+  .tilt-right { transform: rotate(1.5deg); }
+
+  /* Grid spans */
+  .polaroid--tall   { grid-row: span 2; }
+  .polaroid--wide   { grid-column: span 2; }
+  .polaroid--square { /* default 1x1 */ }
+
+  /* Photo placeholder */
+  .photo-placeholder {
+    flex: 1;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Shimmer effect */
+  .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.4) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-size: 400px 100%;
+    animation: shimmer 2.4s ease-in-out infinite;
+  }
+
+  .photo-emoji {
+    font-size: 2rem;
+    opacity: 0.5;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Caption strip */
+  .polaroid-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .gallery-note {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 2rem;
+    font-style: italic;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 150px;
+      gap: 14px;
+    }
+    .polaroid--wide {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .gallery-grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: 200px;
+    }
+    .polaroid--wide,
+    .polaroid--tall {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  }
+</style>

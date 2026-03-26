@@ -1,0 +1,228 @@
+---
+const MAPS_URL = 'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA';
+
+const details = [
+  { icon: '📅', label: 'Hari & Tanggal', value: 'Sabtu, 4 April 2026' },
+  { icon: '🕙', label: 'Waktu',          value: '10.00 WIB – Selesai' },
+  { icon: '📍', label: 'Tempat',         value: "Mateen's House" },
+  { icon: '🏠', label: 'Alamat',         value: 'Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis' },
+];
+---
+
+<section class="section-wrapper invitation-section">
+  <div class="section-inner">
+    <div class="section-label animate-on-scroll">QUEST · UNDANGAN AKIKAH</div>
+
+    <div class="quest-card clay-yellow animate-on-scroll">
+      <!-- Card header -->
+      <div class="card-header">
+        <span class="card-header-icon">🏆</span>
+        <div class="card-header-text">
+          <span class="card-header-pre">Dengan penuh syukur, kami mengundang</span>
+          <span class="card-header-title">Akikah Emir Ayden Mateen</span>
+        </div>
+      </div>
+
+      <!-- Card body -->
+      <div class="card-body">
+        <p class="opening-text">
+          Bismillahirrahmanirrahim<br />
+          Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙
+        </p>
+        <p class="opening-sub">
+          Dengan memanjatkan puji syukur kehadirat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam acara syukuran akikah putra kami:
+        </p>
+
+        <div class="baby-info-box">
+          <span class="baby-info-name">Emir Ayden Mateen</span>
+        </div>
+
+        <div class="details-list">
+          {details.map((d) => (
+            <div class="detail-row">
+              <span class="detail-icon">{d.icon}</span>
+              <div class="detail-text">
+                <span class="detail-label">{d.label}</span>
+                <span class="detail-value">{d.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Card footer -->
+      <div class="card-footer">
+        <p class="footer-note">Kehadiran Anda adalah kebahagiaan terbesar kami 💛</p>
+        <a
+          href={MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="clay-btn clay-btn--green"
+        >
+          🗺️ Lihat Lokasi
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .invitation-section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  /* Quest card — yellow clay, white inner */
+  .quest-card {
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Card header — darker yellow band */
+  .card-header {
+    background: linear-gradient(135deg, #CCA000, #E8B800);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: inset 0 -3px 8px rgba(0,0,0,0.12);
+  }
+
+  .card-header-icon {
+    font-size: 2.4rem;
+    animation: float 3s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .card-header-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-header-pre {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .card-header-title {
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Card body — white clay surface */
+  .card-body {
+    background: linear-gradient(145deg, #fffef9 0%, #fdf8ec 100%);
+    padding: 28px 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .opening-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #3C3C3C;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .opening-sub {
+    font-size: 0.92rem;
+    color: #666;
+    text-align: center;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .baby-info-box {
+    text-align: center;
+    background: linear-gradient(145deg, #FFE580, #FFD447);
+    border-radius: 18px;
+    padding: 14px 24px;
+    box-shadow:
+      0 5px 0 #CCA000,
+      0 8px 16px rgba(0,0,0,0.12),
+      inset 0 3px 8px rgba(255,255,255,0.5);
+  }
+
+  .baby-info-name {
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    font-weight: 700;
+    color: #3C3C3C;
+  }
+
+  /* Detail rows */
+  .details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 14px;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(255, 212, 71, 0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .detail-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .detail-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #CCA000;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #3C3C3C;
+    margin-top: 1px;
+  }
+
+  /* Card footer */
+  .card-footer {
+    background: linear-gradient(145deg, #FFE580, #FFD447);
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: inset 0 3px 8px rgba(255,255,255,0.4);
+  }
+
+  .footer-note {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #6B5900;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .card-header, .card-body, .card-footer {
+      padding-left: 18px;
+      padding-right: 18px;
+    }
+  }
+</style>

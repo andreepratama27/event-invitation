@@ -1,0 +1,182 @@
+---
+const MAPS_URL  = 'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA';
+// Embed URL using the address — works without an API key
+const EMBED_URL = 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi+Batang+Kuis&output=embed&hl=id&z=16';
+---
+
+<section class="section-wrapper direction-section">
+  <div class="section-inner">
+    <div class="section-label animate-on-scroll">MAP QUEST · LOKASI</div>
+
+    <h2 class="section-heading animate-on-scroll">
+      Petunjuk Arah
+    </h2>
+    <p class="section-sub animate-on-scroll">
+      Kami siap menyambut kedatanganmu! 🧭
+    </p>
+
+    <div class="map-card clay-blue animate-on-scroll">
+      <!-- Card header -->
+      <div class="card-header">
+        <span class="card-header-icon">🧭</span>
+        <div>
+          <p class="card-header-pre">Lokasi Akikah</p>
+          <p class="card-header-title">Mateen's House</p>
+        </div>
+      </div>
+
+      <!-- Map iframe -->
+      <div class="map-wrapper">
+        <iframe
+          src={EMBED_URL}
+          title="Lokasi Akikah Emir Ayden Mateen"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <!-- Address block -->
+      <div class="address-block">
+        <div class="address-row">
+          <span class="address-icon">📍</span>
+          <div class="address-text">
+            <span class="address-name">Mateen's House</span>
+            <span class="address-detail">Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="map-footer">
+        <a
+          href={MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="clay-btn clay-btn--green"
+        >
+          🗺️ Buka Google Maps
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .direction-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .section-heading {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Blue clay card */
+  .map-card {
+    border-radius: 28px;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .card-header {
+    background: linear-gradient(135deg, #2A8FCC, #3AACEE);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: inset 0 -3px 8px rgba(0,0,0,0.12);
+  }
+
+  .card-header-icon {
+    font-size: 2rem;
+    animation: float 3s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  .card-header-pre {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Responsive iframe */
+  .map-wrapper {
+    position: relative;
+    padding-top: 56.25%;
+    background: #d4eaf7;
+  }
+
+  .map-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Address block */
+  .address-block {
+    background: linear-gradient(145deg, #f0faff 0%, #e0f3ff 100%);
+    padding: 16px 24px;
+  }
+
+  .address-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .address-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .address-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .address-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-dark);
+  }
+
+  .address-detail {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* Footer */
+  .map-footer {
+    background: linear-gradient(145deg, #4BBEF5, #2A8FCC);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: center;
+    box-shadow: inset 0 3px 8px rgba(255,255,255,0.2);
+  }
+</style>

@@ -1,1 +1,381 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+
+/* ============================================================
+   CSS VARIABLES — Clay Game UI
+   ============================================================ */
+:root {
+  /* Green */
+  --color-green:        #5BBF3E;
+  --color-green-dark:   #3E8A28;
+  --color-green-light:  #7FD460;
+
+  /* Yellow */
+  --color-yellow:       #FFD447;
+  --color-yellow-dark:  #CCA000;
+  --color-yellow-light: #FFE580;
+
+  /* Coral */
+  --color-coral:        #FF6B6B;
+  --color-coral-dark:   #CC4A4A;
+  --color-coral-light:  #FF9494;
+
+  /* Blue */
+  --color-blue:         #4BBEF5;
+  --color-blue-dark:    #2A8FCC;
+  --color-blue-light:   #7AD4FF;
+
+  /* Purple */
+  --color-purple:       #C97BFF;
+  --color-purple-dark:  #9A50D4;
+  --color-purple-light: #DFA8FF;
+
+  /* Neutrals */
+  --color-bg:    #F0EBE3;
+  --color-card:  #FDFAF6;
+  --color-dark:  #3C3C3C;
+  --color-muted: #8A8480;
+  --color-white: #FFFFFF;
+
+  /* Typography */
+  --font-main: 'Fredoka', 'Nunito', sans-serif;
+
+  /* Border Radius */
+  --radius-sm:   10px;
+  --radius-md:   20px;
+  --radius-lg:   28px;
+  --radius-xl:   36px;
+  --radius-pill: 9999px;
+
+  /* Spacing */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  2rem;
+  --space-xl:  3.5rem;
+  --space-2xl: 6rem;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-dark);
+  line-height: 1.5;
+  overflow-x: hidden;
+  /* Subtle linen texture via SVG noise */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ============================================================
+   CLAY SHADOW UTILITIES
+   A clay element looks raised, soft, and 3D-inflated.
+   Each color has its own shadow (bottom push uses dark variant).
+   ============================================================ */
+.clay-green {
+  background: linear-gradient(145deg, var(--color-green-light) 0%, var(--color-green) 100%);
+  box-shadow:
+    0 10px 0 var(--color-green-dark),
+    0 16px 28px rgba(0, 0, 0, 0.18),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.10),
+    inset 0 5px 12px rgba(255, 255, 255, 0.55);
+}
+
+.clay-yellow {
+  background: linear-gradient(145deg, var(--color-yellow-light) 0%, var(--color-yellow) 100%);
+  box-shadow:
+    0 10px 0 var(--color-yellow-dark),
+    0 16px 28px rgba(0, 0, 0, 0.18),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.10),
+    inset 0 5px 12px rgba(255, 255, 255, 0.55);
+}
+
+.clay-coral {
+  background: linear-gradient(145deg, var(--color-coral-light) 0%, var(--color-coral) 100%);
+  box-shadow:
+    0 10px 0 var(--color-coral-dark),
+    0 16px 28px rgba(0, 0, 0, 0.18),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.10),
+    inset 0 5px 12px rgba(255, 255, 255, 0.55);
+}
+
+.clay-blue {
+  background: linear-gradient(145deg, var(--color-blue-light) 0%, var(--color-blue) 100%);
+  box-shadow:
+    0 10px 0 var(--color-blue-dark),
+    0 16px 28px rgba(0, 0, 0, 0.18),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.10),
+    inset 0 5px 12px rgba(255, 255, 255, 0.55);
+}
+
+.clay-purple {
+  background: linear-gradient(145deg, var(--color-purple-light) 0%, var(--color-purple) 100%);
+  box-shadow:
+    0 10px 0 var(--color-purple-dark),
+    0 16px 28px rgba(0, 0, 0, 0.18),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.10),
+    inset 0 5px 12px rgba(255, 255, 255, 0.55);
+}
+
+.clay-white {
+  background: linear-gradient(145deg, #ffffff 0%, #f5f0ea 100%);
+  box-shadow:
+    0 10px 0 #d4cdc5,
+    0 16px 28px rgba(0, 0, 0, 0.14),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.06),
+    inset 0 5px 12px rgba(255, 255, 255, 0.9);
+}
+
+/* ============================================================
+   CLAY BUTTON
+   ============================================================ */
+.clay-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  padding: 14px 32px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.clay-btn--green {
+  color: #fff;
+  background: linear-gradient(145deg, var(--color-green-light) 0%, var(--color-green) 100%);
+  box-shadow:
+    0 8px 0 var(--color-green-dark),
+    0 12px 20px rgba(0, 0, 0, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+    inset 0 4px 10px rgba(255, 255, 255, 0.5);
+}
+.clay-btn--green:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 2px 0 var(--color-green-dark),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+    inset 0 3px 7px rgba(255, 255, 255, 0.45);
+}
+
+.clay-btn--yellow {
+  color: var(--color-dark);
+  background: linear-gradient(145deg, var(--color-yellow-light) 0%, var(--color-yellow) 100%);
+  box-shadow:
+    0 8px 0 var(--color-yellow-dark),
+    0 12px 20px rgba(0, 0, 0, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+    inset 0 4px 10px rgba(255, 255, 255, 0.5);
+}
+.clay-btn--yellow:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 2px 0 var(--color-yellow-dark),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+    inset 0 3px 7px rgba(255, 255, 255, 0.45);
+}
+
+.clay-btn--blue {
+  color: #fff;
+  background: linear-gradient(145deg, var(--color-blue-light) 0%, var(--color-blue) 100%);
+  box-shadow:
+    0 8px 0 var(--color-blue-dark),
+    0 12px 20px rgba(0, 0, 0, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+    inset 0 4px 10px rgba(255, 255, 255, 0.5);
+}
+.clay-btn--blue:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 2px 0 var(--color-blue-dark),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+    inset 0 3px 7px rgba(255, 255, 255, 0.45);
+}
+
+.clay-btn--purple {
+  color: #fff;
+  background: linear-gradient(145deg, var(--color-purple-light) 0%, var(--color-purple) 100%);
+  box-shadow:
+    0 8px 0 var(--color-purple-dark),
+    0 12px 20px rgba(0, 0, 0, 0.2),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+    inset 0 4px 10px rgba(255, 255, 255, 0.5);
+}
+.clay-btn--purple:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 2px 0 var(--color-purple-dark),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+    inset 0 3px 7px rgba(255, 255, 255, 0.45);
+}
+
+/* ============================================================
+   SECTION LAYOUT HELPERS
+   ============================================================ */
+.section-wrapper {
+  width: 100%;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.section-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-pill);
+  padding: 4px 14px;
+  margin-bottom: var(--space-lg);
+  backdrop-filter: blur(4px);
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+/* Confetti fall */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-30px) rotate(0deg);   opacity: 1; }
+  80%  { opacity: 0.9; }
+  100% { transform: translateY(110vh) rotate(800deg); opacity: 0; }
+}
+
+/* Gentle float (decorative elements) */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+/* Bounce in (cards entering) */
+@keyframes bounce-in {
+  0%   { transform: scale(0.3) translateY(20px); opacity: 0; }
+  60%  { transform: scale(1.05);  opacity: 1; }
+  80%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+/* Wiggle (name card hover) */
+@keyframes wiggle {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-5deg); }
+  40%  { transform: rotate(5deg); }
+  60%  { transform: rotate(-3deg); }
+  80%  { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* XP bar fill */
+@keyframes xp-fill {
+  0%   { width: 0%; }
+  100% { width: 72%; }
+}
+
+/* Shimmer (placeholder images) */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* Countdown digit pop */
+@keyframes count-pop {
+  0%   { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Scroll arrow bounce */
+@keyframes bounce-arrow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+/* Star spin */
+@keyframes star-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* ============================================================
+   WAVY SVG SECTION DIVIDER
+   ============================================================ */
+.wave-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.wave-divider svg {
+  display: block;
+  width: 100%;
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .animate-on-scroll {
+    opacity: 1;
+    transform: none;
+  }
+}
