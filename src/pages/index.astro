@@ -29,6 +29,21 @@ import GuestbookSection from '../components/GuestbookSection.astro';
   </body>
 </html>
 
+<!-- Dynamic XP Bar — progress toward Akikah day -->
+<script>
+  const xpStart = new Date('2026-01-01T00:00:00+07:00');
+  const xpEnd   = new Date('2026-04-04T00:00:00+07:00');
+  const now     = Date.now();
+  const total   = xpEnd.getTime() - xpStart.getTime();
+  const elapsed = Math.min(Math.max(now - xpStart.getTime(), 0), total);
+  const pct     = Math.round((elapsed / total) * 100);
+
+  const fillEl = document.getElementById('xp-fill');
+  const textEl = document.getElementById('xp-text');
+  if (fillEl) requestAnimationFrame(() => { fillEl.style.width = pct + '%'; });
+  if (textEl) textEl.textContent = pct + ' / 100 XP';
+</script>
+
 <!-- Countdown Timer -->
 <script>
   const target = new Date('2026-04-04T00:00:00+07:00');

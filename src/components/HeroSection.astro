@@ -47,7 +47,7 @@ const confetti = [
     <!-- Level tag -->
     <div class="level-tag animate-on-scroll">
       <span class="level-dot"></span>
-      LEVEL 1 &nbsp;·&nbsp; SELAMAT DATANG
+      CHAPTER 1 &nbsp;·&nbsp; AWAL CERITA
     </div>
 
     <!-- Stars decoration -->
@@ -75,11 +75,11 @@ const confetti = [
     <!-- XP bar -->
     <div class="xp-bar-wrapper animate-on-scroll" aria-hidden="true">
       <div class="xp-bar-label">
-        <span>✨ Kebahagiaan</span>
-        <span>72 / 100 XP</span>
+        <span>✨ Misi Menuju Akikah</span>
+        <span id="xp-text">0 / 100 XP</span>
       </div>
       <div class="xp-bar-track">
-        <div class="xp-bar-fill"></div>
+        <div class="xp-bar-fill" id="xp-fill"></div>
       </div>
     </div>
 
@@ -310,7 +310,7 @@ const confetti = [
     width: 0%;
     background: linear-gradient(90deg, #FFD166, #FFB703);
     border-radius: 9999px;
-    animation: xp-fill 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+    transition: width 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 2px 8px rgba(255, 212, 71, 0.6);
   }
 
