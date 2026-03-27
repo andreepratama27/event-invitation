@@ -4,36 +4,36 @@
    CSS VARIABLES — Clay Game UI
    ============================================================ */
 :root {
-  /* Green */
-  --color-green:        #5BBF3E;
-  --color-green-dark:   #3E8A28;
-  --color-green-light:  #7FD460;
+  /* Green (Teal-Cyan) */
+  --color-green:        #0096C7;
+  --color-green-dark:   #006B8F;
+  --color-green-light:  #48CAE4;
 
-  /* Yellow */
-  --color-yellow:       #FFD447;
-  --color-yellow-dark:  #CCA000;
-  --color-yellow-light: #FFE580;
+  /* Yellow (Amber) */
+  --color-yellow:       #FFB703;
+  --color-yellow-dark:  #CC9200;
+  --color-yellow-light: #FFD166;
 
-  /* Coral */
-  --color-coral:        #FF6B6B;
-  --color-coral-dark:   #CC4A4A;
-  --color-coral-light:  #FF9494;
+  /* Coral (Orange) */
+  --color-coral:        #FB8500;
+  --color-coral-dark:   #C66A00;
+  --color-coral-light:  #FFA94D;
 
-  /* Blue */
-  --color-blue:         #4BBEF5;
-  --color-blue-dark:    #2A8FCC;
-  --color-blue-light:   #7AD4FF;
+  /* Blue (Deep Ocean) */
+  --color-blue:         #00B4D8;
+  --color-blue-dark:    #0088A8;
+  --color-blue-light:   #90E0EF;
 
-  /* Purple */
-  --color-purple:       #C97BFF;
-  --color-purple-dark:  #9A50D4;
-  --color-purple-light: #DFA8FF;
+  /* Purple (Navy) */
+  --color-purple:       #023E8A;
+  --color-purple-dark:  #012A5E;
+  --color-purple-light: #0077B6;
 
   /* Neutrals */
-  --color-bg:    #F0EBE3;
-  --color-card:  #FDFAF6;
-  --color-dark:  #3C3C3C;
-  --color-muted: #8A8480;
+  --color-bg:    #E8F4FD;
+  --color-card:  #FFFFFF;
+  --color-dark:  #1B3A4B;
+  --color-muted: #5E7C8A;
   --color-white: #FFFFFF;
 
   /* Typography */
@@ -139,9 +139,9 @@ a {
 }
 
 .clay-white {
-  background: linear-gradient(145deg, #ffffff 0%, #f5f0ea 100%);
+  background: linear-gradient(145deg, #ffffff 0%, #e8f4fd 100%);
   box-shadow:
-    0 10px 0 #d4cdc5,
+    0 10px 0 #c4dae8,
     0 16px 28px rgba(0, 0, 0, 0.14),
     inset 0 -5px 10px rgba(0, 0, 0, 0.06),
     inset 0 5px 12px rgba(255, 255, 255, 0.9);
