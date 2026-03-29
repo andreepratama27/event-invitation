@@ -6,9 +6,9 @@
 export const event = {
   // ── Baby ────────────────────────────────────────────────
   baby: {
-    firstName:  'Emir',
+    firstName: 'Emir',
     middleName: 'Ayden',
-    lastName:   'Mateen',
+    lastName: 'Mateen',
     /** Full name shorthand */
     get fullName() {
       return `${this.firstName} ${this.middleName} ${this.lastName}`;
@@ -26,29 +26,29 @@ export const event = {
   },
 
   // ── Event ───────────────────────────────────────────────
-  type:        'Akikah',           // e.g. Akikah, Ulang Tahun, Syukuran
-  dateISO:     '2026-04-18',       // YYYY-MM-DD
-  timeLabel:   '10.00 WIB – Selesai',
-  timezone:    '+07:00',
+  type: 'Akikah',           // e.g. Akikah, Ulang Tahun, Syukuran
+  dateISO: '2026-04-18',       // YYYY-MM-DD
+  timeLabel: '10.00 WIB – Selesai',
+  timezone: '+07:00',
   /** Full ISO datetime string for countdown / XP bar scripts */
   get datetimeISO() {
     return `${this.dateISO}T00:00:00${this.timezone}`;
   },
   /** Human-readable date label */
-  dateLabel:   'Sabtu, 18 April 2026',
+  dateLabel: 'Sabtu, 18 April 2026',
 
   // ── Venue ───────────────────────────────────────────────
   venue: {
-    name:     "Mateen's House",
-    address:  'Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis',
-    mapsUrl:  'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA',
+    name: "Mateen's House",
+    address: 'Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis',
+    mapsUrl: 'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA',
     embedUrl: 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi+Batang+Kuis&output=embed&hl=id&z=16',
   },
 
-// ── RSVP / Contact ──────────────────────────────────────
+  // ── RSVP / Contact ──────────────────────────────────────
   contact: {
     whatsapp: '6285156847850', // e.g. '628123456789' — leave empty to hide RSVP button
-    name:     'Andre Pratama', // contact person name
+    name: 'Andre Pratama', // contact person name
   },
 
   // ── Dress Code ──────────────────────────────────────────
@@ -56,10 +56,10 @@ export const event = {
 
   // ── Site / SEO ──────────────────────────────────────────
   site: {
-    url:         'https://emir-invitation.vercel.app',
+    url: 'https://aqiqah-mateen.vercel.app',
     ogImagePath: '/og-image.svg',
-    locale:      'id_ID',
-    lang:        'id',
+    locale: 'id_ID',
+    lang: 'id',
     get ogTitle() {
       return `Undangan ${event.type} · ${event.baby.fullName}`;
     },
