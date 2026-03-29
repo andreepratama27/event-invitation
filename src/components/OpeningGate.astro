@@ -1,0 +1,235 @@
+---
+// Floating emoji decorations — deterministic positions
+const floats = [
+  { emoji: '⭐', left: '8%',  top: '12%', delay: '0s',   dur: '3.8s', size: '1.6rem' },
+  { emoji: '🎈', left: '85%', top: '18%', delay: '0.5s', dur: '4.2s', size: '1.8rem' },
+  { emoji: '🎉', left: '15%', top: '72%', delay: '1.2s', dur: '3.5s', size: '1.4rem' },
+  { emoji: '⭐', left: '78%', top: '65%', delay: '0.8s', dur: '4.6s', size: '1.2rem' },
+  { emoji: '🎈', left: '50%', top: '8%',  delay: '1.5s', dur: '3.9s', size: '1.5rem' },
+  { emoji: '🎉', left: '90%', top: '45%', delay: '0.3s', dur: '4.1s', size: '1.3rem' },
+  { emoji: '⭐', left: '5%',  top: '42%', delay: '1.8s', dur: '3.6s', size: '1.7rem' },
+  { emoji: '🎈', left: '35%', top: '85%', delay: '0.7s', dur: '4.4s', size: '1.4rem' },
+  { emoji: '🎉', left: '65%', top: '80%', delay: '2.0s', dur: '3.7s', size: '1.6rem' },
+  { emoji: '⭐', left: '42%', top: '30%', delay: '1.0s', dur: '4.8s', size: '1.1rem' },
+];
+---
+
+<!-- Opening Gate Overlay -->
+<div id="opening-gate" class="gate-overlay" aria-modal="true" role="dialog" aria-label="Sampul undangan">
+  <!-- Floating emoji decoration -->
+  <div class="gate-floats" aria-hidden="true">
+    {floats.map((f) => (
+      <span
+        class="gate-float-emoji"
+        style={`
+          left: ${f.left};
+          top: ${f.top};
+          font-size: ${f.size};
+          animation-delay: ${f.delay};
+          animation-duration: ${f.dur};
+        `}
+      >{f.emoji}</span>
+    ))}
+  </div>
+
+  <!-- Center card -->
+  <div class="gate-card clay-white">
+    <p class="gate-kepada">Kepada Yth.</p>
+    <p class="gate-guest-name" id="gate-guest-name">Tamu Undangan</p>
+
+    <div class="gate-divider" aria-hidden="true"></div>
+
+    <p class="gate-label">Undangan Akikah</p>
+    <h2 class="gate-baby-name">Emir Ayden Mateen</h2>
+
+    <button
+      id="gate-open-btn"
+      class="clay-btn clay-btn--yellow gate-btn"
+      type="button"
+      aria-label="Buka undangan akikah Emir Ayden Mateen"
+    >
+      🎉 Buka Undangan
+    </button>
+  </div>
+</div>
+
+<!-- Background music (autoplay blocked by browsers, started on gate open) -->
+<audio id="bg-music" src="/baby-song.mp3" loop preload="auto"></audio>
+
+<style>
+  /* ---- Gate Overlay ---- */
+  .gate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      165deg,
+      rgba(0, 107, 143, 0.97) 0%,
+      rgba(0, 150, 199, 0.95) 40%,
+      rgba(2, 62, 138, 0.97) 100%
+    );
+    backdrop-filter: blur(4px);
+    padding: 1.5rem;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.5s ease;
+    will-change: transform, opacity;
+  }
+
+  .gate-overlay.is-open {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---- Floating emojis ---- */
+  .gate-floats {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .gate-float-emoji {
+    position: absolute;
+    display: inline-block;
+    animation: gate-float ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  }
+
+  @keyframes gate-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%      { transform: translateY(-14px) rotate(5deg); }
+    50%      { transform: translateY(-6px) rotate(-3deg); }
+    75%      { transform: translateY(-18px) rotate(4deg); }
+  }
+
+  /* ---- Center card ---- */
+  .gate-card {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border-radius: var(--radius-xl);
+    max-width: 380px;
+    width: 100%;
+    animation: gate-card-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes gate-card-in {
+    0%   { transform: scale(0.7) translateY(30px); opacity: 0; }
+    100% { transform: scale(1) translateY(0);      opacity: 1; }
+  }
+
+  .gate-kepada {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+
+  .gate-guest-name {
+    font-size: clamp(1.3rem, 5vw, 1.7rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    word-break: break-word;
+  }
+
+  .gate-divider {
+    width: 50px;
+    height: 4px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--color-yellow), var(--color-coral));
+    margin: 0 auto 1rem;
+  }
+
+  .gate-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .gate-baby-name {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    font-weight: 700;
+    color: var(--color-green);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .gate-btn {
+    font-size: 1.15rem;
+    padding: 16px 36px;
+  }
+
+  /* ---- Reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .gate-overlay {
+      transition: opacity 0.01s;
+    }
+    .gate-overlay.is-open {
+      transform: none;
+      opacity: 0;
+    }
+    .gate-float-emoji {
+      animation: none;
+    }
+    .gate-card {
+      animation: none;
+    }
+  }
+
+  /* ---- Small screens ---- */
+  @media (max-width: 380px) {
+    .gate-card {
+      padding: 2rem 1.25rem;
+    }
+  }
+</style>
+
+<script>
+  // Read guest name from ?to= query param
+  const params = new URLSearchParams(window.location.search);
+  const guestName = params.get('to');
+  const nameEl = document.getElementById('gate-guest-name');
+  if (guestName && nameEl) {
+    nameEl.textContent = decodeURIComponent(guestName);
+  }
+
+  // Lock body scroll while gate is visible
+  document.body.style.overflow = 'hidden';
+
+  // Open gate on button click
+  const gate = document.getElementById('opening-gate');
+  const btn = document.getElementById('gate-open-btn');
+  const music = document.getElementById('bg-music') as HTMLAudioElement | null;
+
+  btn?.addEventListener('click', () => {
+    // Slide up the gate
+    gate?.classList.add('is-open');
+
+    // Unlock body scroll
+    document.body.style.overflow = '';
+
+    // Start background music
+    if (music) {
+      music.volume = 0.4;
+      music.play().catch(() => {
+        // Browser blocked autoplay — silently ignore
+      });
+    }
+
+    // Remove overlay from DOM after animation
+    gate?.addEventListener('transitionend', () => {
+      gate.remove();
+    }, { once: true });
+  });
+</script>

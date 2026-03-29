@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import OpeningGate from '../components/OpeningGate.astro';
 import HeroSection from '../components/HeroSection.astro';
 import InvitationSection from '../components/InvitationSection.astro';
 import NameMeanings from '../components/NameMeanings.astro';
@@ -48,6 +49,7 @@ const OG_IMAGE = `${SITE_URL}/og-image.svg`;
     <link rel="icon" href="/favicon.ico" />
   </head>
   <body>
+    <OpeningGate />
     <main>
       <HeroSection />
       <InvitationSection />
