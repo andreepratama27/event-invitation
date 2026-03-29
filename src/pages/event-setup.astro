@@ -1,0 +1,588 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+---
+
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Event Setup · {event.site.ogTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="setup-page">
+      <!-- Header -->
+      <header class="setup-header">
+        <div class="setup-header-inner">
+          <div class="level-tag">
+            <span class="level-dot"></span>
+            SETTINGS · EVENT CONFIG
+          </div>
+          <h1 class="setup-title">⚙️ Event Setup</h1>
+          <p class="setup-subtitle">Edit konfigurasi undangan di sini</p>
+        </div>
+      </header>
+
+      <!-- Form -->
+      <div class="section-wrapper">
+        <div class="section-inner">
+          <form id="event-form" class="setup-form">
+
+            <!-- Baby Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">👶</span>
+                Data Anak
+              </legend>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="baby-firstName">Nama Depan</label>
+                  <input type="text" id="baby-firstName" name="baby.firstName" value={event.baby.firstName} required />
+                </div>
+                <div class="form-field">
+                  <label for="baby-middleName">Nama Tengah</label>
+                  <input type="text" id="baby-middleName" name="baby.middleName" value={event.baby.middleName} />
+                </div>
+                <div class="form-field">
+                  <label for="baby-lastName">Nama Belakang</label>
+                  <input type="text" id="baby-lastName" name="baby.lastName" value={event.baby.lastName} />
+                </div>
+                <div class="form-field">
+                  <label for="baby-birthDate">Tanggal Lahir</label>
+                  <input type="date" id="baby-birthDate" name="baby.birthDate" value={event.baby.birthDate} required />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Parents Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">👨‍👩‍👦</span>
+                Data Orang Tua
+              </legend>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="parents-father">Nama Ayah</label>
+                  <input type="text" id="parents-father" name="parents.father" value={event.parents.father} required />
+                </div>
+                <div class="form-field">
+                  <label for="parents-mother">Nama Ibu</label>
+                  <input type="text" id="parents-mother" name="parents.mother" value={event.parents.mother} required />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Event Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">🎉</span>
+                Detail Acara
+              </legend>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="event-type">Jenis Acara</label>
+                  <select id="event-type" name="type">
+                    <option value="Akikah" selected={event.type === 'Akikah'}>Akikah</option>
+                    <option value="Ulang Tahun" selected={event.type === 'Ulang Tahun'}>Ulang Tahun</option>
+                    <option value="Syukuran" selected={event.type === 'Syukuran'}>Syukuran</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="event-dateISO">Tanggal Acara</label>
+                  <input type="date" id="event-dateISO" name="dateISO" value={event.dateISO} required />
+                </div>
+                <div class="form-field">
+                  <label for="event-timeLabel">Waktu</label>
+                  <input type="text" id="event-timeLabel" name="timeLabel" value={event.timeLabel} placeholder="10.00 WIB – Selesai" required />
+                </div>
+                <div class="form-field">
+                  <label for="event-timezone">Timezone</label>
+                  <input type="text" id="event-timezone" name="timezone" value={event.timezone} placeholder="+07:00" required />
+                </div>
+                <div class="form-field form-field--full">
+                  <label for="event-dateLabel">Label Tanggal</label>
+                  <input type="text" id="event-dateLabel" name="dateLabel" value={event.dateLabel} placeholder="Sabtu, 18 April 2026" required />
+                </div>
+                <div class="form-field form-field--full">
+                  <label for="event-dresscode">Dress Code</label>
+                  <input type="text" id="event-dresscode" name="dresscode" value={event.dresscode} placeholder="Busana Muslim / Sopan (kosongkan untuk sembunyikan)" />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Venue Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">📍</span>
+                Lokasi
+              </legend>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="venue-name">Nama Tempat</label>
+                  <input type="text" id="venue-name" name="venue.name" value={event.venue.name} required />
+                </div>
+                <div class="form-field">
+                  <label for="venue-address">Alamat</label>
+                  <input type="text" id="venue-address" name="venue.address" value={event.venue.address} required />
+                </div>
+                <div class="form-field form-field--full">
+                  <label for="venue-mapsUrl">Google Maps URL</label>
+                  <input type="url" id="venue-mapsUrl" name="venue.mapsUrl" value={event.venue.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
+                </div>
+                <div class="form-field form-field--full">
+                  <label for="venue-embedUrl">Google Maps Embed URL</label>
+                  <input type="url" id="venue-embedUrl" name="venue.embedUrl" value={event.venue.embedUrl} placeholder="https://maps.google.com/maps?q=..." />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Contact / RSVP Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">📱</span>
+                Kontak / RSVP
+              </legend>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="contact-whatsapp">No. WhatsApp</label>
+                  <input type="tel" id="contact-whatsapp" name="contact.whatsapp" value={event.contact.whatsapp} placeholder="628123456789" />
+                </div>
+                <div class="form-field">
+                  <label for="contact-name">Nama Kontak</label>
+                  <input type="text" id="contact-name" name="contact.name" value={event.contact.name} />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Site / SEO Section -->
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">🌐</span>
+                Site / SEO
+              </legend>
+              <div class="form-grid">
+                <div class="form-field form-field--full">
+                  <label for="site-url">URL Situs</label>
+                  <input type="url" id="site-url" name="site.url" value={event.site.url} required />
+                </div>
+                <div class="form-field">
+                  <label for="site-ogImagePath">OG Image Path</label>
+                  <input type="text" id="site-ogImagePath" name="site.ogImagePath" value={event.site.ogImagePath} placeholder="/og-image.svg" />
+                </div>
+                <div class="form-field">
+                  <label for="site-locale">Locale</label>
+                  <input type="text" id="site-locale" name="site.locale" value={event.site.locale} placeholder="id_ID" />
+                </div>
+                <div class="form-field">
+                  <label for="site-lang">Language</label>
+                  <input type="text" id="site-lang" name="site.lang" value={event.site.lang} placeholder="id" />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Actions -->
+            <div class="form-actions animate-on-scroll">
+              <button type="button" id="btn-generate" class="clay-btn clay-btn--green">
+                📋 Generate Config
+              </button>
+              <button type="button" id="btn-download" class="clay-btn clay-btn--blue">
+                💾 Download event.ts
+              </button>
+            </div>
+
+          </form>
+
+          <!-- Output -->
+          <div id="output-section" class="output-section" style="display:none">
+            <fieldset class="form-section clay-white animate-on-scroll">
+              <legend class="form-legend">
+                <span class="legend-icon">📄</span>
+                Generated event.ts
+              </legend>
+              <div class="output-toolbar">
+                <button type="button" id="btn-copy" class="clay-btn clay-btn--yellow">
+                  📋 Copy
+                </button>
+              </div>
+              <pre id="output-code" class="output-code"><code></code></pre>
+            </fieldset>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Back link -->
+      <div class="section-wrapper" style="padding-top:0">
+        <div class="section-inner" style="text-align:center">
+          <a href="/" class="back-link">← Kembali ke Undangan</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  function getFormData(): Record<string, string> {
+    const form = document.getElementById('event-form') as HTMLFormElement;
+    const data: Record<string, string> = {};
+    const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select');
+    inputs.forEach((el) => {
+      data[el.name] = el.value;
+    });
+    return data;
+  }
+
+  function escapeStr(s: string): string {
+    return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
+  function generateConfig(d: Record<string, string>): string {
+    return `// ============================================================
+// Event Configuration
+// All content, dates, and URLs for the invitation site live here.
+// ============================================================
+
+export const event = {
+  // ── Baby ────────────────────────────────────────────────
+  baby: {
+    firstName:  '${escapeStr(d['baby.firstName'])}',
+    middleName: '${escapeStr(d['baby.middleName'])}',
+    lastName:   '${escapeStr(d['baby.lastName'])}',
+    /** Full name shorthand */
+    get fullName() {
+      return \`\${this.firstName} \${this.middleName} \${this.lastName}\`;
+    },
+    birthDate: '${escapeStr(d['baby.birthDate'])}', // ISO date (YYYY-MM-DD)
+  },
+
+  // ── Parents ─────────────────────────────────────────────
+  parents: {
+    father: '${escapeStr(d['parents.father'])}',
+    mother: '${escapeStr(d['parents.mother'])}',
+    get names() {
+      return \`\${this.father} & \${this.mother}\`;
+    },
+  },
+
+  // ── Event ───────────────────────────────────────────────
+  type:        '${escapeStr(d['type'])}',           // e.g. Akikah, Ulang Tahun, Syukuran
+  dateISO:     '${escapeStr(d['dateISO'])}',       // YYYY-MM-DD
+  timeLabel:   '${escapeStr(d['timeLabel'])}',
+  timezone:    '${escapeStr(d['timezone'])}',
+  /** Full ISO datetime string for countdown / XP bar scripts */
+  get datetimeISO() {
+    return \`\${this.dateISO}T00:00:00\${this.timezone}\`;
+  },
+  /** Human-readable date label */
+  dateLabel:   '${escapeStr(d['dateLabel'])}',
+
+  // ── Venue ───────────────────────────────────────────────
+  venue: {
+    name:     '${escapeStr(d['venue.name'])}',
+    address:  '${escapeStr(d['venue.address'])}',
+    mapsUrl:  '${escapeStr(d['venue.mapsUrl'])}',
+    embedUrl: '${escapeStr(d['venue.embedUrl'])}',
+  },
+
+// ── RSVP / Contact ──────────────────────────────────────
+  contact: {
+    whatsapp: '${escapeStr(d['contact.whatsapp'])}', // e.g. '628123456789' — leave empty to hide RSVP button
+    name:     '${escapeStr(d['contact.name'])}', // contact person name
+  },
+
+  // ── Dress Code ──────────────────────────────────────────
+  dresscode: '${escapeStr(d['dresscode'])}', // leave empty to hide
+
+  // ── Site / SEO ──────────────────────────────────────────
+  site: {
+    url:         '${escapeStr(d['site.url'])}',
+    ogImagePath: '${escapeStr(d['site.ogImagePath'])}',
+    locale:      '${escapeStr(d['site.locale'])}',
+    lang:        '${escapeStr(d['site.lang'])}',
+    get ogTitle() {
+      return \`Undangan \${event.type} · \${event.baby.fullName}\`;
+    },
+    get ogDescription() {
+      return \`Bismillah, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam syukuran \${event.type} putra kami. \${event.dateLabel} · \${event.timeLabel} di \${event.venue.address.split(',')[1]?.trim() ?? event.venue.address}.\`;
+    },
+    get ogImage() {
+      return \`\${this.url}\${this.ogImagePath}\`;
+    },
+  },
+};`;
+  }
+
+  // Generate button
+  document.getElementById('btn-generate')?.addEventListener('click', () => {
+    const data = getFormData();
+    const code = generateConfig(data);
+    const outputSection = document.getElementById('output-section')!;
+    const outputCode = document.querySelector('#output-code code')!;
+    outputCode.textContent = code;
+    outputSection.style.display = 'block';
+    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // Copy button
+  document.getElementById('btn-copy')?.addEventListener('click', async () => {
+    const code = document.querySelector('#output-code code')?.textContent ?? '';
+    await navigator.clipboard.writeText(code);
+    const btn = document.getElementById('btn-copy')!;
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied!';
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  });
+
+  // Download button
+  document.getElementById('btn-download')?.addEventListener('click', () => {
+    const data = getFormData();
+    const code = generateConfig(data);
+    const blob = new Blob([code], { type: 'text/typescript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'event.ts';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+</script>
+
+<style>
+  /* ---- Setup Page ---- */
+  .setup-page {
+    min-height: 100vh;
+    padding-bottom: var(--space-xl);
+  }
+
+  /* ---- Header ---- */
+  .setup-header {
+    background: radial-gradient(ellipse at 50% 60%, #48CAE4 0%, #0096C7 40%, #006B8F 100%);
+    padding: 3rem 1rem 4rem;
+    text-align: center;
+  }
+
+  .setup-header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .setup-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+  }
+
+  .setup-subtitle {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 400;
+  }
+
+  .level-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.22);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 9999px;
+    padding: 5px 16px;
+    backdrop-filter: blur(6px);
+  }
+
+  .level-dot {
+    width: 8px;
+    height: 8px;
+    background: #FFB703;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  /* ---- Form Sections ---- */
+  .setup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: -2rem;
+  }
+
+  .form-section {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    position: relative;
+  }
+
+  .form-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    padding: 0 4px;
+    margin-bottom: 1.2rem;
+  }
+
+  .legend-icon {
+    font-size: 1.5rem;
+  }
+
+  /* ---- Form Grid ---- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-field--full {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 560px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---- Form Fields ---- */
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-field label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .form-field input,
+  .form-field select {
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-dark);
+    background: rgba(255,255,255,0.8);
+    border: 2px solid rgba(0,150,199,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    width: 100%;
+  }
+
+  .form-field input:focus,
+  .form-field select:focus {
+    border-color: var(--color-green);
+    box-shadow:
+      0 0 0 3px rgba(0,150,199,0.15),
+      inset 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  .form-field input::placeholder {
+    color: #aac4cf;
+    font-weight: 400;
+  }
+
+  .form-field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235E7C8A' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  /* ---- Form Actions ---- */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.5rem 0 1rem;
+  }
+
+  /* ---- Output Section ---- */
+  .output-section {
+    margin-top: 1.5rem;
+  }
+
+  .output-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  .output-code {
+    background: #1B3A4B;
+    color: #90E0EF;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    white-space: pre;
+    box-shadow:
+      inset 0 3px 8px rgba(0,0,0,0.3),
+      0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  /* ---- Back Link ---- */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-green);
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    background: rgba(0,150,199,0.08);
+    transition: background 0.2s ease;
+  }
+
+  .back-link:hover {
+    background: rgba(0,150,199,0.16);
+  }
+
+  @media (max-width: 480px) {
+    .form-section {
+      padding: 20px 16px;
+    }
+
+    .form-actions .clay-btn {
+      font-size: 0.95rem;
+      padding: 12px 24px;
+    }
+  }
+</style>
