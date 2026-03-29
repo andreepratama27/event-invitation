@@ -1,4 +1,8 @@
 ---
+import { event } from '../config/event';
+
+const { baby, type: eventType } = event;
+
 // Floating emoji decorations — deterministic positions
 const floats = [
   { emoji: '⭐', left: '8%',  top: '12%', delay: '0s',   dur: '3.8s', size: '1.6rem' },
@@ -39,14 +43,14 @@ const floats = [
 
     <div class="gate-divider" aria-hidden="true"></div>
 
-    <p class="gate-label">Undangan Akikah</p>
-    <h2 class="gate-baby-name">Emir Ayden Mateen</h2>
+    <p class="gate-label">Undangan {eventType}</p>
+    <h2 class="gate-baby-name">{baby.fullName}</h2>
 
     <button
       id="gate-open-btn"
       class="clay-btn clay-btn--yellow gate-btn"
       type="button"
-      aria-label="Buka undangan akikah Emir Ayden Mateen"
+      aria-label={`Buka undangan ${eventType.toLowerCase()} ${baby.fullName}`}
     >
       🎉 Buka Undangan
     </button>

@@ -7,41 +7,39 @@ import NameMeanings from '../components/NameMeanings.astro';
 import GallerySection from '../components/GallerySection.astro';
 import DirectionSection from '../components/DirectionSection.astro';
 import GuestbookSection from '../components/GuestbookSection.astro';
+import { event } from '../config/event';
 
-const SITE_URL = 'https://emir-invitation.vercel.app';
-const OG_TITLE = 'Undangan Akikah · Emir Ayden Mateen';
-const OG_DESCRIPTION = 'Bismillah, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam syukuran Akikah putra kami. Sabtu, 4 April 2026 · 10:00 WIB di Batang Kuis.';
-const OG_IMAGE = `${SITE_URL}/og-image.svg`;
+const { site, baby, type: eventType, dateLabel } = event;
 ---
 
-<html lang="id">
+<html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Primary -->
-    <title>{OG_TITLE}</title>
-    <meta name="description" content={OG_DESCRIPTION} />
-    <link rel="canonical" href={SITE_URL} />
+    <title>{site.ogTitle}</title>
+    <meta name="description" content={site.ogDescription} />
+    <link rel="canonical" href={site.url} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={SITE_URL} />
-    <meta property="og:title" content={OG_TITLE} />
-    <meta property="og:description" content={OG_DESCRIPTION} />
-    <meta property="og:image" content={OG_IMAGE} />
+    <meta property="og:url" content={site.url} />
+    <meta property="og:title" content={site.ogTitle} />
+    <meta property="og:description" content={site.ogDescription} />
+    <meta property="og:image" content={site.ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Undangan Akikah Emir Ayden Mateen – 4 April 2026" />
-    <meta property="og:locale" content="id_ID" />
-    <meta property="og:site_name" content="Undangan Akikah Emir Ayden Mateen" />
+    <meta property="og:image:alt" content={`Undangan ${eventType} ${baby.fullName} – ${dateLabel}`} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:site_name" content={site.ogTitle} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={OG_TITLE} />
-    <meta name="twitter:description" content={OG_DESCRIPTION} />
-    <meta name="twitter:image" content={OG_IMAGE} />
-    <meta name="twitter:image:alt" content="Undangan Akikah Emir Ayden Mateen – 4 April 2026" />
+    <meta name="twitter:title" content={site.ogTitle} />
+    <meta name="twitter:description" content={site.ogDescription} />
+    <meta name="twitter:image" content={site.ogImage} />
+    <meta name="twitter:image:alt" content={`Undangan ${eventType} ${baby.fullName} – ${dateLabel}`} />
 
     <!-- WhatsApp / iMessage use og: tags above, no extra tags needed -->
 
@@ -61,10 +59,12 @@ const OG_IMAGE = `${SITE_URL}/og-image.svg`;
   </body>
 </html>
 
-<!-- Dynamic XP Bar — progress toward Akikah day -->
-<script>
-  const xpStart = new Date('2026-01-01T00:00:00+07:00');
-  const xpEnd   = new Date('2026-04-04T00:00:00+07:00');
+<!-- Dynamic XP Bar — progress from today toward event day -->
+<script define:vars={{ eventDatetimeISO: event.datetimeISO }}>
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const xpStart = today;
+  const xpEnd   = new Date(eventDatetimeISO);
   const now     = Date.now();
   const total   = xpEnd.getTime() - xpStart.getTime();
   const elapsed = Math.min(Math.max(now - xpStart.getTime(), 0), total);
@@ -77,10 +77,10 @@ const OG_IMAGE = `${SITE_URL}/og-image.svg`;
 </script>
 
 <!-- Countdown Timer -->
-<script>
-  const target = new Date('2026-04-04T00:00:00+07:00');
+<script define:vars={{ eventDatetimeISO: event.datetimeISO }}>
+  const target = new Date(eventDatetimeISO);
 
-  function pad(n: number): string {
+  function pad(n) {
     return String(n).padStart(2, '0');
   }
 

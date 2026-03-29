@@ -1,17 +1,19 @@
 ---
-const MAPS_URL = 'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA';
+import { event } from '../config/event';
+
+const { venue, dateLabel, timeLabel, type: eventType, baby, parents } = event;
 
 const details = [
-  { icon: '📅', label: 'Hari & Tanggal', value: 'Sabtu, 4 April 2026' },
-  { icon: '🕙', label: 'Waktu',          value: '10.00 WIB – Selesai' },
-  { icon: '📍', label: 'Tempat',         value: "Mateen's House" },
-  { icon: '🏠', label: 'Alamat',         value: 'Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis' },
+  { icon: '📅', label: 'Hari & Tanggal', value: dateLabel },
+  { icon: '🕙', label: 'Waktu',          value: timeLabel },
+  { icon: '📍', label: 'Tempat',         value: venue.name },
+  { icon: '🏠', label: 'Alamat',         value: venue.address },
 ];
 ---
 
 <section class="section-wrapper invitation-section">
   <div class="section-inner">
-    <div class="section-label animate-on-scroll">QUEST · UNDANGAN AKIKAH</div>
+    <div class="section-label animate-on-scroll">QUEST · UNDANGAN {eventType.toUpperCase()}</div>
 
     <div class="quest-card clay-yellow animate-on-scroll">
       <!-- Card header -->
@@ -19,7 +21,7 @@ const details = [
         <span class="card-header-icon">🏆</span>
         <div class="card-header-text">
           <span class="card-header-pre">Dengan penuh syukur, kami mengundang</span>
-          <span class="card-header-title">Akikah Emir Ayden Mateen</span>
+          <span class="card-header-title">{eventType} {baby.fullName}</span>
         </div>
       </div>
 
@@ -30,11 +32,11 @@ const details = [
           Assalamu'alaikum Warahmatullahi Wabarakatuh 🌙
         </p>
         <p class="opening-sub">
-          Dengan memanjatkan puji syukur kehadirat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam acara syukuran akikah putra kami:
+          Dengan memanjatkan puji syukur kehadirat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam acara syukuran {eventType.toLowerCase()} putra kami:
         </p>
 
         <div class="baby-info-box">
-          <span class="baby-info-name">Emir Ayden Mateen</span>
+          <span class="baby-info-name">{baby.fullName}</span>
         </div>
 
         <div class="details-list">
@@ -54,7 +56,7 @@ const details = [
       <div class="card-footer">
         <p class="footer-note">Kehadiran Anda adalah kebahagiaan terbesar kami 💛</p>
         <a
-          href={MAPS_URL}
+          href={venue.mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
           class="clay-btn clay-btn--green"

@@ -1,7 +1,7 @@
 ---
-const MAPS_URL  = 'https://maps.app.goo.gl/d8CPAtcpJnVjhvtFA';
-// Embed URL using the address — works without an API key
-const EMBED_URL = 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi+Batang+Kuis&output=embed&hl=id&z=16';
+import { event } from '../config/event';
+
+const { venue, type: eventType, baby } = event;
 ---
 
 <section class="section-wrapper direction-section">
@@ -20,16 +20,16 @@ const EMBED_URL = 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi
       <div class="card-header">
         <span class="card-header-icon">🧭</span>
         <div>
-          <p class="card-header-pre">Lokasi Akikah</p>
-          <p class="card-header-title">Mateen's House</p>
+          <p class="card-header-pre">Lokasi {eventType}</p>
+          <p class="card-header-title">{venue.name}</p>
         </div>
       </div>
 
       <!-- Map iframe -->
       <div class="map-wrapper">
         <iframe
-          src={EMBED_URL}
-          title="Lokasi Akikah Emir Ayden Mateen"
+          src={venue.embedUrl}
+          title={`Lokasi ${eventType} ${baby.fullName}`}
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen
@@ -41,8 +41,8 @@ const EMBED_URL = 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi
         <div class="address-row">
           <span class="address-icon">📍</span>
           <div class="address-text">
-            <span class="address-name">Mateen's House</span>
-            <span class="address-detail">Gg. Sentosa Dusun III Desa Sidodadi, Batang Kuis</span>
+            <span class="address-name">{venue.name}</span>
+            <span class="address-detail">{venue.address}</span>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@ const EMBED_URL = 'https://maps.google.com/maps?q=Gg.+Sentosa+Dusun+III+Sidodadi
       <!-- CTA -->
       <div class="map-footer">
         <a
-          href={MAPS_URL}
+          href={venue.mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
           class="clay-btn clay-btn--green"

@@ -1,4 +1,8 @@
 ---
+import { event } from '../config/event';
+
+const { baby, parents, type: eventType } = event;
+
 // Hardcoded confetti particles — deterministic, no Math.random() at runtime
 const confetti = [
   { color: '#0096C7', left: '4%',  delay: '0s',    dur: '4.2s', size: 14, shape: 'circle' },
@@ -59,9 +63,9 @@ const confetti = [
 
     <!-- Baby name -->
     <h1 class="baby-name animate-on-scroll">
-      <span class="name-word name-emir">Emir</span>
-      <span class="name-word name-ayden">Ayden</span>
-      <span class="name-word name-mateen">Mateen</span>
+      <span class="name-word name-emir">{baby.firstName}</span>
+      <span class="name-word name-ayden">{baby.middleName}</span>
+      <span class="name-word name-mateen">{baby.lastName}</span>
     </h1>
 
     <!-- Subtitle -->
@@ -69,13 +73,13 @@ const confetti = [
       🍼 Putra dari
     </p>
     <p class="parents animate-on-scroll">
-      Andre Pratama &amp; Syaras Saryang Putri
+      {parents.names}
     </p>
 
     <!-- XP bar -->
     <div class="xp-bar-wrapper animate-on-scroll" aria-hidden="true">
       <div class="xp-bar-label">
-        <span>✨ Misi Menuju Akikah</span>
+        <span>✨ Hari Menuju {eventType}</span>
         <span id="xp-text">0 / 100 XP</span>
       </div>
       <div class="xp-bar-track">
