@@ -183,31 +183,13 @@ import { event } from '../config/event';
 
             <!-- Actions -->
             <div class="form-actions animate-on-scroll">
-              <button type="button" id="btn-generate" class="clay-btn clay-btn--green">
-                📋 Generate Config
-              </button>
-              <button type="button" id="btn-download" class="clay-btn clay-btn--blue">
-                💾 Download event.ts
+              <button type="button" id="btn-save" class="clay-btn clay-btn--green">
+                💾 Save Config
               </button>
             </div>
+            <div id="save-status" class="save-status" style="display:none"></div>
 
           </form>
-
-          <!-- Output -->
-          <div id="output-section" class="output-section" style="display:none">
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">📄</span>
-                Generated event.ts
-              </legend>
-              <div class="output-toolbar">
-                <button type="button" id="btn-copy" class="clay-btn clay-btn--yellow">
-                  📋 Copy
-                </button>
-              </div>
-              <pre id="output-code" class="output-code"><code></code></pre>
-            </fieldset>
-          </div>
 
         </div>
       </div>
@@ -233,118 +215,41 @@ import { event } from '../config/event';
     return data;
   }
 
-  function escapeStr(s: string): string {
-    return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  function showStatus(message: string, type: 'success' | 'error') {
+    const el = document.getElementById('save-status')!;
+    el.textContent = message;
+    el.className = `save-status save-status--${type}`;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
   }
 
-  function generateConfig(d: Record<string, string>): string {
-    return `// ============================================================
-// Event Configuration
-// All content, dates, and URLs for the invitation site live here.
-// ============================================================
-
-export const event = {
-  // ── Baby ────────────────────────────────────────────────
-  baby: {
-    firstName:  '${escapeStr(d['baby.firstName'])}',
-    middleName: '${escapeStr(d['baby.middleName'])}',
-    lastName:   '${escapeStr(d['baby.lastName'])}',
-    /** Full name shorthand */
-    get fullName() {
-      return \`\${this.firstName} \${this.middleName} \${this.lastName}\`;
-    },
-    birthDate: '${escapeStr(d['baby.birthDate'])}', // ISO date (YYYY-MM-DD)
-  },
-
-  // ── Parents ─────────────────────────────────────────────
-  parents: {
-    father: '${escapeStr(d['parents.father'])}',
-    mother: '${escapeStr(d['parents.mother'])}',
-    get names() {
-      return \`\${this.father} & \${this.mother}\`;
-    },
-  },
-
-  // ── Event ───────────────────────────────────────────────
-  type:        '${escapeStr(d['type'])}',           // e.g. Akikah, Ulang Tahun, Syukuran
-  dateISO:     '${escapeStr(d['dateISO'])}',       // YYYY-MM-DD
-  timeLabel:   '${escapeStr(d['timeLabel'])}',
-  timezone:    '${escapeStr(d['timezone'])}',
-  /** Full ISO datetime string for countdown / XP bar scripts */
-  get datetimeISO() {
-    return \`\${this.dateISO}T00:00:00\${this.timezone}\`;
-  },
-  /** Human-readable date label */
-  dateLabel:   '${escapeStr(d['dateLabel'])}',
-
-  // ── Venue ───────────────────────────────────────────────
-  venue: {
-    name:     '${escapeStr(d['venue.name'])}',
-    address:  '${escapeStr(d['venue.address'])}',
-    mapsUrl:  '${escapeStr(d['venue.mapsUrl'])}',
-    embedUrl: '${escapeStr(d['venue.embedUrl'])}',
-  },
-
-// ── RSVP / Contact ──────────────────────────────────────
-  contact: {
-    whatsapp: '${escapeStr(d['contact.whatsapp'])}', // e.g. '628123456789' — leave empty to hide RSVP button
-    name:     '${escapeStr(d['contact.name'])}', // contact person name
-  },
-
-  // ── Dress Code ──────────────────────────────────────────
-  dresscode: '${escapeStr(d['dresscode'])}', // leave empty to hide
-
-  // ── Site / SEO ──────────────────────────────────────────
-  site: {
-    url:         '${escapeStr(d['site.url'])}',
-    ogImagePath: '${escapeStr(d['site.ogImagePath'])}',
-    locale:      '${escapeStr(d['site.locale'])}',
-    lang:        '${escapeStr(d['site.lang'])}',
-    get ogTitle() {
-      return \`Undangan \${event.type} · \${event.baby.fullName}\`;
-    },
-    get ogDescription() {
-      return \`Bismillah, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam syukuran \${event.type} putra kami. \${event.dateLabel} · \${event.timeLabel} di \${event.venue.address.split(',')[1]?.trim() ?? event.venue.address}.\`;
-    },
-    get ogImage() {
-      return \`\${this.url}\${this.ogImagePath}\`;
-    },
-  },
-};`;
-  }
-
-  // Generate button
-  document.getElementById('btn-generate')?.addEventListener('click', () => {
-    const data = getFormData();
-    const code = generateConfig(data);
-    const outputSection = document.getElementById('output-section')!;
-    const outputCode = document.querySelector('#output-code code')!;
-    outputCode.textContent = code;
-    outputSection.style.display = 'block';
-    outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
-  // Copy button
-  document.getElementById('btn-copy')?.addEventListener('click', async () => {
-    const code = document.querySelector('#output-code code')?.textContent ?? '';
-    await navigator.clipboard.writeText(code);
-    const btn = document.getElementById('btn-copy')!;
+  // Save button
+  document.getElementById('btn-save')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-save') as HTMLButtonElement;
     const original = btn.innerHTML;
-    btn.innerHTML = '✅ Copied!';
-    setTimeout(() => { btn.innerHTML = original; }, 2000);
-  });
+    btn.innerHTML = '⏳ Saving...';
+    btn.disabled = true;
 
-  // Download button
-  document.getElementById('btn-download')?.addEventListener('click', () => {
-    const data = getFormData();
-    const code = generateConfig(data);
-    const blob = new Blob([code], { type: 'text/typescript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'event.ts';
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const data = getFormData();
+      const res = await fetch('/api/save-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+
+      if (result.ok) {
+        showStatus('✅ Config saved to event.ts! Restart dev server to see changes.', 'success');
+      } else {
+        showStatus(`❌ Failed: ${result.error}`, 'error');
+      }
+    } catch (err) {
+      showStatus(`❌ Network error: ${err instanceof Error ? err.message : 'Unknown'}`, 'error');
+    } finally {
+      btn.innerHTML = original;
+      btn.disabled = false;
+    }
   });
 
   // Scroll reveal
@@ -531,30 +436,26 @@ export const event = {
     padding: 0.5rem 0 1rem;
   }
 
-  /* ---- Output Section ---- */
-  .output-section {
-    margin-top: 1.5rem;
+  /* ---- Save Status ---- */
+  .save-status {
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
   }
 
-  .output-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1rem;
+  .save-status--success {
+    background: rgba(0, 200, 83, 0.12);
+    color: #00a854;
+    border: 1.5px solid rgba(0, 200, 83, 0.3);
   }
 
-  .output-code {
-    background: #1B3A4B;
-    color: #90E0EF;
-    border-radius: var(--radius-md);
-    padding: 20px;
-    overflow-x: auto;
-    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-    font-size: 0.82rem;
-    line-height: 1.65;
-    white-space: pre;
-    box-shadow:
-      inset 0 3px 8px rgba(0,0,0,0.3),
-      0 4px 12px rgba(0,0,0,0.1);
+  .save-status--error {
+    background: rgba(255, 59, 48, 0.12);
+    color: #d32f2f;
+    border: 1.5px solid rgba(255, 59, 48, 0.3);
   }
 
   /* ---- Back Link ---- */
