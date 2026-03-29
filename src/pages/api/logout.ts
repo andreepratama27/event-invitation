@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ cookies, request }) => {
+export const POST: APIRoute = async ({ cookies, redirect }) => {
   cookies.delete('manage_session', { path: '/' });
-  return Response.redirect(new URL('/login', request.url), 302);
+  return redirect('/login', 302);
 };

@@ -6,7 +6,7 @@ export const prerender = false;
 const SESSION_COOKIE = 'manage_session';
 const SESSION_MAX_AGE = 60 * 5; // 5 minutes
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const form = await request.formData();
   const email = form.get('email')?.toString().trim() ?? '';
   const password = form.get('password')?.toString() ?? '';
@@ -31,9 +31,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       maxAge: SESSION_MAX_AGE,
     });
 
-    return Response.redirect(new URL('/manage-invitation', request.url), 302);
+    return redirect('/manage-invitation', 302);
   }
 
   // Wrong credentials — redirect back with error
-  return Response.redirect(new URL('/login?error=1', request.url), 302);
+  return redirect('/login?error=1', 302);
 };
