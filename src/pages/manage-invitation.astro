@@ -182,7 +182,7 @@ Terima kasih 🤲`;
   </body>
 </html>
 
-<style>
+<style is:global>
   /* ── Page Layout ─────────────────────────────────────── */
   .manage-page {
     max-width: 640px;
@@ -304,6 +304,10 @@ Terima kasih 🤲`;
   /* ── Add Guest Form ──────────────────────────────────── */
   .add-guest-section {
     margin-bottom: 1.5rem;
+  }
+
+  .add-guest-section .section-label {
+    margin-bottom: 0.75rem;
   }
 
   .add-form {
@@ -450,9 +454,9 @@ Terima kasih 🤲`;
   }
 
   .guest-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    gap: 0 12px;
     background: linear-gradient(145deg, #ffffff 0%, #f4faff 100%);
     border-radius: var(--radius-md);
     padding: 14px 16px;
@@ -473,47 +477,52 @@ Terima kasih 🤲`;
   }
 
   .guest-avatar {
-    width: 40px;
-    height: 40px;
+    grid-row: 1 / 3;
+    align-self: center;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
     flex-shrink: 0;
     box-shadow:
-      0 3px 0 rgba(0, 0, 0, 0.1),
+      0 3px 0 rgba(0, 0, 0, 0.12),
       inset 0 2px 4px rgba(255, 255, 255, 0.5);
   }
 
-  .guest-info {
-    flex: 1;
+  .guest-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     min-width: 0;
+    padding-bottom: 4px;
   }
 
   .guest-name {
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--color-dark);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .guest-phone {
-    font-size: 0.78rem;
-    color: var(--color-muted);
-    font-weight: 500;
+    flex: 1;
+    min-width: 0;
   }
 
   .guest-status {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 3px 8px;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
     border-radius: var(--radius-pill);
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .guest-status.sent {
@@ -526,6 +535,23 @@ Terima kasih 🤲`;
     color: var(--color-coral);
   }
 
+  .guest-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .guest-phone {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
   .guest-actions {
     display: flex;
     gap: 6px;
@@ -533,12 +559,12 @@ Terima kasih 🤲`;
   }
 
   .action-btn {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -546,24 +572,24 @@ Terima kasih 🤲`;
   }
 
   .action-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.88);
   }
 
   .action-btn.wa-btn {
     background: linear-gradient(145deg, #25D366, #128C7E);
-    box-shadow: 0 3px 0 #0a6e58, 0 4px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 0 #0a6e58, 0 4px 8px rgba(0, 0, 0, 0.14);
     color: #fff;
   }
 
   .action-btn.edit-btn {
     background: linear-gradient(145deg, var(--color-blue-light), var(--color-blue));
-    box-shadow: 0 3px 0 var(--color-blue-dark), 0 4px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 0 var(--color-blue-dark), 0 4px 8px rgba(0, 0, 0, 0.14);
     color: #fff;
   }
 
   .action-btn.delete-btn {
     background: linear-gradient(145deg, #ff7b7b, #e74c3c);
-    box-shadow: 0 3px 0 #b73a2e, 0 4px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 0 #b73a2e, 0 4px 8px rgba(0, 0, 0, 0.14);
     color: #fff;
   }
 
@@ -733,19 +759,27 @@ Terima kasih 🤲`;
   }
 
   /* ── Responsive ──────────────────────────────────────── */
-  @media (max-width: 400px) {
+  @media (max-width: 380px) {
     .guest-card {
-      flex-wrap: wrap;
-      gap: 8px;
+      grid-template-columns: 40px 1fr;
+      padding: 12px 14px;
+      gap: 0 10px;
     }
 
-    .guest-actions {
-      width: 100%;
-      justify-content: flex-end;
+    .guest-avatar {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
     }
 
-    .guest-status {
-      order: -1;
+    .guest-name {
+      font-size: 0.9rem;
+    }
+
+    .action-btn {
+      width: 30px;
+      height: 30px;
+      font-size: 0.75rem;
     }
   }
 </style>
@@ -860,15 +894,17 @@ Terima kasih 🤲`;
         return `
         <div class="guest-card" role="listitem" style="animation-delay: ${i * 0.03}s">
           <div class="guest-avatar" style="background: ${av.bg}">${av.initial}</div>
-          <div class="guest-info">
+          <div class="guest-top-row">
             <div class="guest-name">${escapeHtml(g.name)}</div>
-            <div class="guest-phone">${g.phone}</div>
+            <span class="guest-status ${statusClass}">${statusText}</span>
           </div>
-          <span class="guest-status ${statusClass}">${statusText}</span>
-          <div class="guest-actions">
-            <button class="action-btn wa-btn" data-id="${g.id}" title="Kirim via WhatsApp" aria-label="Kirim undangan ke ${escapeHtml(g.name)} via WhatsApp">💬</button>
-            <button class="action-btn edit-btn" data-id="${g.id}" title="Edit" aria-label="Edit ${escapeHtml(g.name)}">✏️</button>
-            <button class="action-btn delete-btn" data-id="${g.id}" title="Hapus" aria-label="Hapus ${escapeHtml(g.name)}">✕</button>
+          <div class="guest-bottom-row">
+            <div class="guest-phone">${g.phone}</div>
+            <div class="guest-actions">
+              <button class="action-btn wa-btn" data-id="${g.id}" title="Kirim via WhatsApp" aria-label="Kirim undangan ke ${escapeHtml(g.name)} via WhatsApp">💬</button>
+              <button class="action-btn edit-btn" data-id="${g.id}" title="Edit" aria-label="Edit ${escapeHtml(g.name)}">✏️</button>
+              <button class="action-btn delete-btn" data-id="${g.id}" title="Hapus" aria-label="Hapus ${escapeHtml(g.name)}">✕</button>
+            </div>
           </div>
         </div>`;
       })
