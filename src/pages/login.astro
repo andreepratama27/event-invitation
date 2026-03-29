@@ -1,0 +1,183 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+
+export const prerender = false;
+
+const { baby, type: eventType } = event;
+
+// Already logged in? Redirect to manage page
+const session = Astro.cookies.get('manage_session');
+if (session?.value) {
+  return Astro.redirect('/manage-invitation');
+}
+
+const hasError = Astro.url.searchParams.has('error');
+---
+
+<html lang={event.site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login · Kelola Undangan</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-card clay-white">
+        <div class="login-icon">🔐</div>
+        <h1 class="login-title">Kelola Undangan</h1>
+        <p class="login-sub">{eventType} {baby.fullName}</p>
+
+        {hasError && (
+          <div class="login-error" role="alert">
+            ❌ Email atau password salah. Silakan coba lagi.
+          </div>
+        )}
+
+        <form method="POST" action="/api/login" class="login-form" autocomplete="on">
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="masukkan email"
+              required
+              autofocus
+              autocomplete="email"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="masukkan password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="clay-btn clay-btn--green login-btn">
+            🔓 Masuk
+          </button>
+        </form>
+
+        <a href="/" class="back-link">← Kembali ke undangan</a>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  .login-page {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .login-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .login-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .login-sub {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-error {
+    background: linear-gradient(145deg, #ffe0e0 0%, #ffc4c4 100%);
+    color: #b91c1c;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.25rem;
+    box-shadow:
+      0 4px 0 #e8a0a0,
+      inset 0 -2px 4px rgba(0, 0, 0, 0.06),
+      inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  }
+
+  .login-form {
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.03em;
+  }
+
+  .form-input {
+    width: 100%;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    padding: 12px 16px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-dark);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .form-input:focus {
+    border-color: var(--color-green);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.06),
+      0 0 0 3px rgba(0, 150, 199, 0.15);
+  }
+
+  .login-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-green);
+    transition: transform 0.15s ease;
+  }
+
+  .back-link:hover {
+    transform: translateX(-3px);
+  }
+</style>

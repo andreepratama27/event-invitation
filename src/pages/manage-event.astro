@@ -1,6 +1,14 @@
 ---
 import '../styles/global.css';
 import { event } from '../config/event';
+
+export const prerender = false;
+
+// Auth guard — redirect to login if no session cookie
+const session = Astro.cookies.get('manage_session');
+if (!session?.value) {
+  return Astro.redirect('/login');
+}
 ---
 
 <html lang="id">

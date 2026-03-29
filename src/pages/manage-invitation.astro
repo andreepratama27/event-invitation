@@ -1,0 +1,1052 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+
+export const prerender = false;
+
+// Auth guard — redirect to login if no session cookie
+const session = Astro.cookies.get('manage_session');
+if (!session?.value) {
+  return Astro.redirect('/login');
+}
+
+const { baby, type: eventType, dateLabel, timeLabel, venue, site } = event;
+
+const waTemplate = `Assalamu'alaikum 🌙
+
+Kepada Bapak/Ibu *{GUEST}*,
+
+Kami mengundang untuk hadir dalam acara ${eventType} putra kami:
+✨ *${baby.fullName}* ✨
+
+📅 ${dateLabel}
+🕙 ${timeLabel}
+📍 ${venue.name}, ${venue.address.split(',').pop()?.trim() ?? venue.address}
+
+Buka undangan: ${site.url}?to={GUEST_URI}
+
+Terima kasih 🤲`;
+---
+
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kelola Undangan · {baby.fullName}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="manage-page">
+      <!-- Header -->
+      <header class="manage-header">
+        <div class="header-top-row">
+          <a href="/" class="back-link" aria-label="Kembali ke undangan">← Undangan</a>
+          <form method="POST" action="/api/logout" class="logout-form">
+            <button type="submit" class="logout-btn" aria-label="Logout">🚪 Keluar</button>
+          </form>
+        </div>
+        <div class="header-content">
+          <span class="header-badge">📋 KELOLA UNDANGAN</span>
+          <h1 class="header-title">{eventType} {baby.fullName}</h1>
+          <p class="header-sub">Tambah tamu, kirim undangan via WhatsApp</p>
+        </div>
+      </header>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item clay-white">
+          <span class="stat-number" id="stat-total">0</span>
+          <span class="stat-label">Total Tamu</span>
+        </div>
+        <div class="stat-item clay-white">
+          <span class="stat-number stat-sent" id="stat-sent">0</span>
+          <span class="stat-label">Terkirim</span>
+        </div>
+        <div class="stat-item clay-white">
+          <span class="stat-number stat-pending" id="stat-pending">0</span>
+          <span class="stat-label">Belum</span>
+        </div>
+      </div>
+
+      <!-- Add Guest Form -->
+      <section class="add-guest-section">
+        <div class="section-label">TAMBAH TAMU</div>
+        <form id="add-guest-form" class="add-form clay-white" autocomplete="off">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="guest-name" class="form-label">Nama Tamu</label>
+              <input
+                type="text"
+                id="guest-name"
+                class="form-input"
+                placeholder="Contoh: Pak Budi"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="guest-phone" class="form-label">No. WhatsApp</label>
+              <input
+                type="tel"
+                id="guest-phone"
+                class="form-input"
+                placeholder="08xxxxxxxxxx"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="clay-btn clay-btn--green add-btn">
+            ➕ Tambah Tamu
+          </button>
+        </form>
+      </section>
+
+      <!-- Search & Filter -->
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Cari nama tamu..."
+            aria-label="Cari nama tamu"
+          />
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all">Semua</button>
+          <button class="filter-btn" data-filter="pending">Belum</button>
+          <button class="filter-btn" data-filter="sent">Terkirim</button>
+        </div>
+      </div>
+
+      <!-- Guest List -->
+      <section class="guest-list-section">
+        <div id="guest-list" class="guest-list" role="list" aria-label="Daftar tamu">
+          <!-- Rendered by JS -->
+        </div>
+        <div id="empty-state" class="empty-state">
+          <span class="empty-icon">📭</span>
+          <p class="empty-text">Belum ada tamu. Tambahkan tamu pertama!</p>
+        </div>
+      </section>
+
+      <!-- Bulk Actions -->
+      <div class="bulk-actions" id="bulk-actions">
+        <button class="clay-btn clay-btn--yellow bulk-btn" id="btn-export" type="button">
+          📥 Export CSV
+        </button>
+        <button class="clay-btn clay-btn--coral bulk-btn" id="btn-clear-all" type="button">
+          🗑️ Hapus Semua
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Konfirmasi hapus">
+      <div class="modal-card clay-white delete-modal-card">
+        <div class="delete-modal-icon">🗑️</div>
+        <h2 class="modal-title delete-modal-title" id="delete-modal-title">Hapus Tamu?</h2>
+        <p class="delete-modal-desc" id="delete-modal-desc">Tamu ini akan dihapus dari daftar undangan.</p>
+        <div class="modal-actions">
+          <button type="button" class="clay-btn clay-btn--yellow" id="delete-cancel">Batal</button>
+          <button type="button" class="clay-btn clay-btn--coral" id="delete-confirm">🗑️ Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit tamu">
+      <div class="modal-card clay-white">
+        <h2 class="modal-title">✏️ Edit Tamu</h2>
+        <form id="edit-form" autocomplete="off">
+          <input type="hidden" id="edit-id" />
+          <div class="form-group">
+            <label for="edit-name" class="form-label">Nama Tamu</label>
+            <input type="text" id="edit-name" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-phone" class="form-label">No. WhatsApp</label>
+            <input type="tel" id="edit-phone" class="form-input" required />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="clay-btn clay-btn--yellow modal-cancel" id="modal-cancel">Batal</button>
+            <button type="submit" class="clay-btn clay-btn--green">💾 Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  /* ── Page Layout ─────────────────────────────────────── */
+  .manage-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 1rem 6rem;
+    min-height: 100dvh;
+  }
+
+  /* ── Header ──────────────────────────────────────────── */
+  .manage-header {
+    padding: 1.25rem 0 1.5rem;
+  }
+
+  .header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .logout-form {
+    margin: 0;
+  }
+
+  .logout-btn {
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .logout-btn:hover {
+    background: rgba(251, 133, 0, 0.15);
+    color: var(--color-coral);
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-green);
+    transition: transform 0.15s ease;
+  }
+
+  .back-link:hover {
+    transform: translateX(-3px);
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+    margin-bottom: 0.5rem;
+  }
+
+  .header-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+
+  .header-sub {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  /* ── Stats Bar ───────────────────────────────────────── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    border-radius: var(--radius-md);
+    padding: 14px 8px;
+    box-shadow:
+      0 5px 0 #c4dae8,
+      0 8px 16px rgba(0, 0, 0, 0.08),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.04),
+      inset 0 3px 8px rgba(255, 255, 255, 0.9);
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    line-height: 1.2;
+  }
+
+  .stat-sent { color: var(--color-green); }
+  .stat-pending { color: var(--color-coral); }
+
+  .stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Add Guest Form ──────────────────────────────────── */
+  .add-guest-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .add-form {
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow:
+      0 6px 0 #c4dae8,
+      0 10px 20px rgba(0, 0, 0, 0.08),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.04),
+      inset 0 3px 8px rgba(255, 255, 255, 0.9);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-green);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .form-input {
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-dark);
+    background: rgba(232, 244, 253, 0.5);
+    border: 2px solid rgba(0, 150, 199, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .form-input::placeholder {
+    color: var(--color-muted);
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  .form-input:focus {
+    border-color: var(--color-green);
+    box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.15);
+  }
+
+  .add-btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px 24px;
+  }
+
+  /* ── Search & Filter Toolbar ─────────────────────────── */
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-dark);
+    background: #fff;
+    border: 2px solid rgba(0, 150, 199, 0.15);
+    border-radius: var(--radius-pill);
+    padding: 10px 16px 10px 42px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .search-input:focus {
+    border-color: var(--color-green);
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(0, 150, 199, 0.15);
+    border-radius: var(--radius-pill);
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--color-green);
+    color: var(--color-green);
+  }
+
+  .filter-btn.active {
+    background: linear-gradient(145deg, var(--color-green-light), var(--color-green));
+    color: #fff;
+    border-color: var(--color-green);
+    box-shadow: 0 3px 0 var(--color-green-dark), 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ── Guest List ──────────────────────────────────────── */
+  .guest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .guest-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(145deg, #ffffff 0%, #f4faff 100%);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    border: 1.5px solid rgba(0, 150, 199, 0.12);
+    box-shadow: 0 3px 0 #dce9f1, 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    animation: card-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .guest-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 #dce9f1, 0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .guest-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow:
+      0 3px 0 rgba(0, 0, 0, 0.1),
+      inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  }
+
+  .guest-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guest-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .guest-phone {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .guest-status {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+  }
+
+  .guest-status.sent {
+    background: rgba(0, 150, 199, 0.12);
+    color: var(--color-green);
+  }
+
+  .guest-status.pending {
+    background: rgba(251, 133, 0, 0.12);
+    color: var(--color-coral);
+  }
+
+  .guest-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .action-btn:active {
+    transform: scale(0.9);
+  }
+
+  .action-btn.wa-btn {
+    background: linear-gradient(145deg, #25D366, #128C7E);
+    box-shadow: 0 3px 0 #0a6e58, 0 4px 8px rgba(0, 0, 0, 0.12);
+    color: #fff;
+  }
+
+  .action-btn.edit-btn {
+    background: linear-gradient(145deg, var(--color-blue-light), var(--color-blue));
+    box-shadow: 0 3px 0 var(--color-blue-dark), 0 4px 8px rgba(0, 0, 0, 0.12);
+    color: #fff;
+  }
+
+  .action-btn.delete-btn {
+    background: linear-gradient(145deg, #ff7b7b, #e74c3c);
+    box-shadow: 0 3px 0 #b73a2e, 0 4px 8px rgba(0, 0, 0, 0.12);
+    color: #fff;
+  }
+
+  /* ── Empty State ─────────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    display: none;
+  }
+
+  .empty-state.visible {
+    display: block;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 0.75rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .empty-text {
+    font-size: 0.95rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  /* ── Bulk Actions ────────────────────────────────────── */
+  .bulk-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+  }
+
+  .bulk-btn {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+  }
+
+  .clay-btn--coral {
+    color: #fff;
+    background: linear-gradient(145deg, var(--color-coral-light) 0%, var(--color-coral) 100%);
+    box-shadow:
+      0 8px 0 var(--color-coral-dark),
+      0 12px 20px rgba(0, 0, 0, 0.2),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+      inset 0 4px 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .clay-btn--coral:active {
+    transform: translateY(6px);
+    box-shadow:
+      0 2px 0 var(--color-coral-dark),
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+      inset 0 3px 7px rgba(255, 255, 255, 0.45);
+  }
+
+  /* ── Toast ───────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--color-dark);
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Modal ───────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(27, 58, 75, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-card {
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow:
+      0 8px 0 #c4dae8,
+      0 16px 32px rgba(0, 0, 0, 0.18),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.04),
+      inset 0 4px 10px rgba(255, 255, 255, 0.9);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-overlay.open .modal-card {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: 1rem;
+  }
+
+  .modal-card .form-group {
+    margin-bottom: 12px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .modal-actions .clay-btn {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 10px 16px;
+  }
+
+  /* ── Delete Modal ──────────────────────────────────── */
+  .delete-modal-card {
+    text-align: center;
+  }
+
+  .delete-modal-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: wiggle 0.5s ease-in-out;
+  }
+
+  .delete-modal-title {
+    justify-content: center;
+  }
+
+  .delete-modal-desc {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  /* ── Responsive ──────────────────────────────────────── */
+  @media (max-width: 400px) {
+    .guest-card {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .guest-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .guest-status {
+      order: -1;
+    }
+  }
+</style>
+
+<script define:vars={{ waTemplate, siteUrl: site.url }}>
+  // ── State ────────────────────────────────────────────
+  const STORAGE_KEY = 'emir_guests';
+  let guests = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let activeFilter = 'all';
+  let searchQuery = '';
+
+  // ── DOM refs ─────────────────────────────────────────
+  const listEl = document.getElementById('guest-list');
+  const emptyEl = document.getElementById('empty-state');
+  const addForm = document.getElementById('add-guest-form');
+  const nameInput = document.getElementById('guest-name');
+  const phoneInput = document.getElementById('guest-phone');
+  const searchInput = document.getElementById('search-input');
+  const toastEl = document.getElementById('toast');
+  const modalEl = document.getElementById('edit-modal');
+  const editForm = document.getElementById('edit-form');
+  const editIdInput = document.getElementById('edit-id');
+  const editNameInput = document.getElementById('edit-name');
+  const editPhoneInput = document.getElementById('edit-phone');
+  const modalCancel = document.getElementById('modal-cancel');
+  const deleteModalEl = document.getElementById('delete-modal');
+  const deleteModalTitle = document.getElementById('delete-modal-title');
+  const deleteModalDesc = document.getElementById('delete-modal-desc');
+  const deleteConfirmBtn = document.getElementById('delete-confirm');
+  const deleteCancelBtn = document.getElementById('delete-cancel');
+  const btnExport = document.getElementById('btn-export');
+  const btnClearAll = document.getElementById('btn-clear-all');
+
+  // ── Helpers ──────────────────────────────────────────
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
+  }
+
+  function genId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function formatPhone(raw) {
+    let p = raw.replace(/\D/g, '');
+    if (p.startsWith('0')) p = '62' + p.slice(1);
+    if (!p.startsWith('62')) p = '62' + p;
+    return p;
+  }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  // ── Avatar colors ────────────────────────────────────
+  const avatarColors = [
+    'linear-gradient(145deg, #48CAE4, #0096C7)',
+    'linear-gradient(145deg, #FFD166, #FFB703)',
+    'linear-gradient(145deg, #FFA94D, #FB8500)',
+    'linear-gradient(145deg, #90E0EF, #00B4D8)',
+    'linear-gradient(145deg, #0077B6, #023E8A)',
+  ];
+
+  function getAvatar(name) {
+    const initial = name.trim().charAt(0).toUpperCase();
+    const colorIdx = name.length % avatarColors.length;
+    return { initial, bg: avatarColors[colorIdx] };
+  }
+
+  // ── Render ───────────────────────────────────────────
+  function getFiltered() {
+    return guests.filter((g) => {
+      const matchSearch =
+        !searchQuery ||
+        g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.phone.includes(searchQuery);
+      const matchFilter =
+        activeFilter === 'all' ||
+        (activeFilter === 'sent' && g.sent) ||
+        (activeFilter === 'pending' && !g.sent);
+      return matchSearch && matchFilter;
+    });
+  }
+
+  function render() {
+    // Stats
+    document.getElementById('stat-total').textContent = guests.length;
+    document.getElementById('stat-sent').textContent = guests.filter((g) => g.sent).length;
+    document.getElementById('stat-pending').textContent = guests.filter((g) => !g.sent).length;
+
+    const filtered = getFiltered();
+
+    if (guests.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.add('visible');
+      return;
+    }
+
+    emptyEl.classList.remove('visible');
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div class="empty-state visible"><span class="empty-icon">🔍</span><p class="empty-text">Tidak ditemukan tamu yang cocok</p></div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered
+      .map((g, i) => {
+        const av = getAvatar(g.name);
+        const statusClass = g.sent ? 'sent' : 'pending';
+        const statusText = g.sent ? '✅ Terkirim' : '⏳ Belum';
+        return `
+        <div class="guest-card" role="listitem" style="animation-delay: ${i * 0.03}s">
+          <div class="guest-avatar" style="background: ${av.bg}">${av.initial}</div>
+          <div class="guest-info">
+            <div class="guest-name">${escapeHtml(g.name)}</div>
+            <div class="guest-phone">${g.phone}</div>
+          </div>
+          <span class="guest-status ${statusClass}">${statusText}</span>
+          <div class="guest-actions">
+            <button class="action-btn wa-btn" data-id="${g.id}" title="Kirim via WhatsApp" aria-label="Kirim undangan ke ${escapeHtml(g.name)} via WhatsApp">💬</button>
+            <button class="action-btn edit-btn" data-id="${g.id}" title="Edit" aria-label="Edit ${escapeHtml(g.name)}">✏️</button>
+            <button class="action-btn delete-btn" data-id="${g.id}" title="Hapus" aria-label="Hapus ${escapeHtml(g.name)}">✕</button>
+          </div>
+        </div>`;
+      })
+      .join('');
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ── Add Guest ────────────────────────────────────────
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    if (!name || !phone) return;
+
+    guests.push({ id: genId(), name, phone: formatPhone(phone), sent: false });
+    save();
+    render();
+    addForm.reset();
+    nameInput.focus();
+    toast('✅ Tamu berhasil ditambahkan!');
+  });
+
+  // ── Guest Actions (delegation) ──────────────────────
+  listEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.action-btn');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const guest = guests.find((g) => g.id === id);
+    if (!guest) return;
+
+    if (btn.classList.contains('wa-btn')) {
+      sendWhatsApp(guest);
+    } else if (btn.classList.contains('edit-btn')) {
+      openEditModal(guest);
+    } else if (btn.classList.contains('delete-btn')) {
+      deleteGuest(id);
+    }
+  });
+
+  // ── WhatsApp Send ───────────────────────────────────
+  function sendWhatsApp(guest) {
+    const guestUri = encodeURIComponent(guest.name);
+    const msg = waTemplate
+      .replace('{GUEST}', guest.name)
+      .replace('{GUEST_URI}', guestUri);
+    const url = `https://wa.me/${guest.phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+
+    guest.sent = true;
+    save();
+    render();
+    toast('📨 Membuka WhatsApp...');
+  }
+
+  // ── Edit ─────────────────────────────────────────────
+  function openEditModal(guest) {
+    editIdInput.value = guest.id;
+    editNameInput.value = guest.name;
+    editPhoneInput.value = guest.phone;
+    modalEl.classList.add('open');
+    editNameInput.focus();
+  }
+
+  function closeModal() {
+    modalEl.classList.remove('open');
+  }
+
+  modalCancel.addEventListener('click', closeModal);
+  modalEl.addEventListener('click', (e) => {
+    if (e.target === modalEl) closeModal();
+  });
+
+  editForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = editIdInput.value;
+    const guest = guests.find((g) => g.id === id);
+    if (!guest) return;
+
+    guest.name = editNameInput.value.trim();
+    guest.phone = formatPhone(editPhoneInput.value.trim());
+    save();
+    render();
+    closeModal();
+    toast('✅ Tamu berhasil diperbarui!');
+  });
+
+  // ── Delete Confirm Modal ─────────────────────────────
+  let pendingDeleteAction = null;
+
+  function openDeleteModal(title, desc, onConfirm) {
+    deleteModalTitle.textContent = title;
+    deleteModalDesc.textContent = desc;
+    pendingDeleteAction = onConfirm;
+    deleteModalEl.classList.add('open');
+  }
+
+  function closeDeleteModal() {
+    deleteModalEl.classList.remove('open');
+    pendingDeleteAction = null;
+  }
+
+  deleteConfirmBtn.addEventListener('click', () => {
+    if (pendingDeleteAction) pendingDeleteAction();
+    closeDeleteModal();
+  });
+
+  deleteCancelBtn.addEventListener('click', closeDeleteModal);
+  deleteModalEl.addEventListener('click', (e) => {
+    if (e.target === deleteModalEl) closeDeleteModal();
+  });
+
+  // ── Delete ───────────────────────────────────────────
+  function deleteGuest(id) {
+    const guest = guests.find((g) => g.id === id);
+    if (!guest) return;
+    openDeleteModal(
+      'Hapus Tamu?',
+      `"${guest.name}" akan dihapus dari daftar undangan.`,
+      () => {
+        guests = guests.filter((g) => g.id !== id);
+        save();
+        render();
+        toast('🗑️ Tamu dihapus');
+      }
+    );
+  }
+
+  // ── Search ───────────────────────────────────────────
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    render();
+  });
+
+  // ── Filter ───────────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  // ── Export CSV ───────────────────────────────────────
+  btnExport.addEventListener('click', () => {
+    if (guests.length === 0) return toast('📭 Tidak ada data untuk di-export');
+    const csv = ['Nama,WhatsApp,Status']
+      .concat(guests.map((g) => `"${g.name}","${g.phone}","${g.sent ? 'Terkirim' : 'Belum'}"`))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'daftar-tamu-emir.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('📥 CSV berhasil di-download!');
+  });
+
+  // ── Clear All ───────────────────────────────────────
+  btnClearAll.addEventListener('click', () => {
+    if (guests.length === 0) return;
+    openDeleteModal(
+      'Hapus Semua Tamu?',
+      `${guests.length} tamu akan dihapus. Aksi ini tidak dapat dibatalkan.`,
+      () => {
+        guests = [];
+        save();
+        render();
+        toast('🗑️ Semua tamu dihapus');
+      }
+    );
+  });
+
+  // ── Init ─────────────────────────────────────────────
+  render();
+</script>
