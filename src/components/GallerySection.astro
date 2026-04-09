@@ -1,13 +1,11 @@
 ---
-// Placeholder gallery items — swap with real <img> when photos are ready
-// Place real photos in public/images/ and use src="/images/baby1.jpg"
 const photos = [
-  { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall'   },
-  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'wide'   },
-  { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square' },
-  { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall'   },
-  { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square' },
-  { label: 'Keluarga Kecil', color: '#FB8500', bg: '#FFA94D', span: 'square' },
+  { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall',   src: null                  },
+  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'wide',   src: '/senyum-bayi.JPG'    },
+  { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square', src: '/tidur-nyenyak.JPG'  },
+  { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall',   src: '/bersama-papa.JPG'   },
+  { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square', src: '/bersama-ibu.JPG'    },
+  { label: 'Keluarga Kecil', color: '#FB8500', bg: '#FFA94D', span: 'square', src: '/keluarga-kecil.JPG' },
 ];
 ---
 
@@ -29,11 +27,17 @@ const photos = [
         >
           <div
             class="photo-placeholder"
-            style={`background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`}
+            style={p.src ? '' : `background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`}
             aria-label={p.label}
           >
-            <div class="shimmer-overlay"></div>
-            <span class="photo-emoji">📷</span>
+            {p.src ? (
+              <img src={p.src} alt={p.label} class="photo-real" />
+            ) : (
+              <>
+                <div class="shimmer-overlay"></div>
+                <span class="photo-emoji">📷</span>
+              </>
+            )}
           </div>
           <p class="polaroid-caption">{p.label}</p>
         </div>
@@ -41,7 +45,7 @@ const photos = [
     </div>
 
     <p class="gallery-note animate-on-scroll">
-      ✨ Foto akan segera hadir — nantikan momen spesial Emir!
+      ✨ Setiap momen adalah kenangan tak ternilai bersama Emir 💛
     </p>
   </div>
 </section>
@@ -116,6 +120,15 @@ const photos = [
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .photo-real {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 6px;
   }
 
   /* Shimmer effect */
