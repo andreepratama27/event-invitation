@@ -1,0 +1,280 @@
+<!-- Floating Audio Control -->
+<div id="audio-control" class="audio-fab" aria-label="Kontrol musik" role="region">
+  <!-- Pulse rings (visible when playing) -->
+  <span class="audio-ring audio-ring--1" aria-hidden="true"></span>
+  <span class="audio-ring audio-ring--2" aria-hidden="true"></span>
+
+  <button
+    id="audio-toggle-btn"
+    class="audio-btn clay-yellow"
+    type="button"
+    aria-label="Putar musik"
+    aria-pressed="false"
+  >
+    <!-- Play icon -->
+    <svg
+      id="audio-icon-play"
+      class="audio-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <!-- Music note double -->
+      <path d="M9 3v10.55A4 4 0 1 0 11 17V7h6V3H9zm-2 16a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+    </svg>
+
+    <!-- Pause icon (hidden by default) -->
+    <svg
+      id="audio-icon-pause"
+      class="audio-icon audio-icon--hidden"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+    </svg>
+  </button>
+
+  <!-- Tooltip label -->
+  <span class="audio-label" aria-hidden="true" id="audio-label-text">Mainkan Musik</span>
+</div>
+
+<style>
+  /* ---- FAB Container ---- */
+  .audio-fab {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.25rem;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Enter animation */
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+    transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .audio-fab.is-visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  /* ---- Main Button ---- */
+  .audio-btn {
+    position: relative;
+    z-index: 2;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    /* Clay yellow */
+    background: linear-gradient(145deg, var(--color-yellow-light) 0%, var(--color-yellow) 100%);
+    box-shadow:
+      0 7px 0 var(--color-yellow-dark),
+      0 12px 24px rgba(0, 0, 0, 0.22),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+      inset 0 4px 10px rgba(255, 255, 255, 0.6);
+    color: var(--color-dark);
+  }
+
+  .audio-btn:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow:
+      0 9px 0 var(--color-yellow-dark),
+      0 18px 32px rgba(0, 0, 0, 0.25),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+      inset 0 4px 10px rgba(255, 255, 255, 0.6);
+  }
+
+  .audio-btn:active {
+    transform: translateY(5px);
+    box-shadow:
+      0 2px 0 var(--color-yellow-dark),
+      0 4px 8px rgba(0, 0, 0, 0.18),
+      inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+      inset 0 3px 7px rgba(255, 255, 255, 0.5);
+  }
+
+  .audio-btn:focus-visible {
+    outline: 3px solid var(--color-green);
+    outline-offset: 3px;
+  }
+
+  /* ---- Icons ---- */
+  .audio-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: block;
+    transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .audio-icon--hidden {
+    display: none;
+  }
+
+  /* ---- Pulse Rings (shown when playing) ---- */
+  .audio-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2.5px solid var(--color-yellow);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1);
+  }
+
+  .audio-fab.is-playing .audio-ring--1 {
+    animation: ring-pulse 2s ease-out infinite;
+  }
+
+  .audio-fab.is-playing .audio-ring--2 {
+    animation: ring-pulse 2s ease-out 0.7s infinite;
+  }
+
+  @keyframes ring-pulse {
+    0%   { transform: scale(1);    opacity: 0.75; }
+    100% { transform: scale(2.3);  opacity: 0; }
+  }
+
+  /* ---- Tooltip ---- */
+  .audio-label {
+    position: absolute;
+    right: calc(100% + 10px);
+    background: var(--color-dark);
+    color: var(--color-white);
+    font-family: var(--font-main);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    opacity: 0;
+    transform: translateX(6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .audio-label.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ---- Playing — subtle bob animation on the button ---- */
+  .audio-fab.is-playing .audio-btn {
+    animation: audio-bob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes audio-bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-4px); }
+  }
+
+  /* ---- Reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .audio-fab,
+    .audio-fab.is-visible {
+      transition: none;
+      opacity: 1;
+      transform: none;
+    }
+    .audio-ring {
+      animation: none !important;
+    }
+    .audio-btn {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  const fab        = document.getElementById('audio-control');
+  const btn        = document.getElementById('audio-toggle-btn');
+  const iconPlay   = document.getElementById('audio-icon-play');
+  const iconPause  = document.getElementById('audio-icon-pause');
+  const labelEl    = document.getElementById('audio-label-text');
+
+  let labelTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function showLabelBriefly() {
+    if (!labelEl) return;
+    labelEl.classList.add('is-visible');
+    if (labelTimer) clearTimeout(labelTimer);
+    labelTimer = setTimeout(() => {
+      labelEl.classList.remove('is-visible');
+    }, 5000);
+  }
+
+  // The audio element lives in OpeningGate.astro
+  const music = document.getElementById('bg-music') as HTMLAudioElement | null;
+
+  function setPlayingState(playing: boolean) {
+    if (!fab || !btn || !iconPlay || !iconPause || !labelEl) return;
+
+    if (playing) {
+      fab.classList.add('is-playing');
+      iconPlay.classList.add('audio-icon--hidden');
+      iconPause.classList.remove('audio-icon--hidden');
+      btn.setAttribute('aria-label', 'Jeda musik');
+      btn.setAttribute('aria-pressed', 'true');
+      labelEl.textContent = 'Stop Musik';
+      showLabelBriefly();
+    } else {
+      fab.classList.remove('is-playing');
+      iconPause.classList.add('audio-icon--hidden');
+      iconPlay.classList.remove('audio-icon--hidden');
+      btn.setAttribute('aria-label', 'Putar musik');
+      btn.setAttribute('aria-pressed', 'false');
+      labelEl.textContent = 'Mainkan Musik';
+      showLabelBriefly();
+    }
+  }
+
+  btn?.addEventListener('click', () => {
+    if (!music) return;
+
+    if (music.paused) {
+      music.play().then(() => {
+        setPlayingState(true);
+      }).catch(() => {
+        // Autoplay blocked — silently ignore
+      });
+    } else {
+      music.pause();
+      setPlayingState(false);
+    }
+  });
+
+  // Keep FAB state in sync when music is controlled elsewhere
+  music?.addEventListener('play',  () => setPlayingState(true));
+  music?.addEventListener('pause', () => setPlayingState(false));
+  music?.addEventListener('ended', () => setPlayingState(false));
+
+  // Show FAB only after the opening gate is dismissed
+  // The gate removes itself after its transition; we watch for that.
+  function revealFab() {
+    fab?.classList.add('is-visible');
+    showLabelBriefly();
+  }
+
+  const gate = document.getElementById('opening-gate');
+  if (gate) {
+    gate.addEventListener('transitionend', revealFab, { once: true });
+  } else {
+    // Gate already gone (e.g. page revisit without gate)
+    revealFab();
+  }
+</script>

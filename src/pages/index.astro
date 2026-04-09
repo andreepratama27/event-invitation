@@ -7,6 +7,7 @@ import NameMeanings from '../components/NameMeanings.astro';
 import GallerySection from '../components/GallerySection.astro';
 import DirectionSection from '../components/DirectionSection.astro';
 import GuestbookSection from '../components/GuestbookSection.astro';
+import FloatingAudioControl from '../components/FloatingAudioControl.astro';
 import { event } from '../config/event';
 
 const { site, baby, type: eventType, dateLabel } = event;
@@ -48,6 +49,7 @@ const { site, baby, type: eventType, dateLabel } = event;
   </head>
   <body>
     <OpeningGate />
+    <FloatingAudioControl />
     <main>
       <HeroSection />
       <InvitationSection />
