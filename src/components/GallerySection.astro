@@ -1,11 +1,18 @@
 ---
+import { Image } from 'astro:assets';
+import senyumBayi from '../assets/gallery/senyum-bayi.JPG';
+import tidurNyenyak from '../assets/gallery/tidur-nyenyak.JPG';
+import bersamaPapa from '../assets/gallery/bersama-papa.JPG';
+import bersamaIbu from '../assets/gallery/bersama-ibu.JPG';
+import keluargaKecil from '../assets/gallery/keluarga-kecil.JPG';
+
 const photos = [
-  { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall',   src: null                  },
-  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'wide',   src: '/senyum-bayi.JPG'    },
-  { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square', src: '/tidur-nyenyak.JPG'  },
-  { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall',   src: '/bersama-papa.JPG'   },
-  { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square', src: '/bersama-ibu.JPG'    },
-  { label: 'Keluarga Kecil', color: '#FB8500', bg: '#FFA94D', span: 'square', src: '/keluarga-kecil.JPG' },
+  { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall',   src: null           },
+  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'wide',   src: senyumBayi     },
+  { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square', src: tidurNyenyak   },
+  { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall',   src: bersamaPapa    },
+  { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square', src: bersamaIbu     },
+  { label: 'Keluarga Kecil', color: '#FB8500', bg: '#FFA94D', span: 'square', src: keluargaKecil  },
 ];
 ---
 
@@ -31,7 +38,7 @@ const photos = [
             aria-label={p.label}
           >
             {p.src ? (
-              <img src={p.src} alt={p.label} class="photo-real" />
+              <Image src={p.src} alt={p.label} class="photo-real" loading="lazy" decoding="async" widths={[400, 800]} sizes="(max-width: 640px) 50vw, 33vw" format="webp" quality={80} />
             ) : (
               <>
                 <div class="shimmer-overlay"></div>
