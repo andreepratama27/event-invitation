@@ -26,7 +26,7 @@ export const event = {
   },
 
   // ── Event ───────────────────────────────────────────────
-  type: 'Akikah',           // e.g. Akikah, Ulang Tahun, Syukuran
+  type: 'Aqiqah',           // e.g. Aqiqah, Ulang Tahun, Syukuran
   dateISO: '2026-04-18',       // YYYY-MM-DD
   timeLabel: '10.00 WIB – Selesai',
   timezone: '+07:00',

@@ -67,7 +67,7 @@
 
   <!-- Invitation label -->
   <text x="600" y="405" font-family="'Lexend', 'Nunito', Arial, sans-serif"
-        font-size="20" fill="#555" text-anchor="middle" letter-spacing="3">UNDANGAN AKIKAH</text>
+        font-size="20" fill="#555" text-anchor="middle" letter-spacing="3">UNDANGAN AQIQAH</text>
 
   <!-- Date & Location row -->
   <rect x="280" y="425" width="260" height="90" rx="20" ry="20"

@@ -59,16 +59,14 @@ const { site, baby, type: eventType, dateLabel } = event;
   </body>
 </html>
 
-<!-- Dynamic XP Bar — progress from today toward event day -->
-<script define:vars={{ eventDatetimeISO: event.datetimeISO }}>
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const xpStart = today;
+<!-- Dynamic XP Bar — progress from birth date toward event day -->
+<script define:vars={{ eventDatetimeISO: event.datetimeISO, birthDateISO: event.baby.birthDate }}>
+  const xpStart = new Date(birthDateISO + 'T00:00:00+07:00');
   const xpEnd   = new Date(eventDatetimeISO);
   const now     = Date.now();
   const total   = xpEnd.getTime() - xpStart.getTime();
   const elapsed = Math.min(Math.max(now - xpStart.getTime(), 0), total);
-  const pct     = Math.round((elapsed / total) * 100);
+  const pct     = total > 0 ? Math.round((elapsed / total) * 100) : 0;
 
   const fillEl = document.getElementById('xp-fill');
   const textEl = document.getElementById('xp-text');

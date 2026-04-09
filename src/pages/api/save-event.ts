@@ -38,7 +38,7 @@ export const event = {
   },
 
   // ── Event ───────────────────────────────────────────────
-  type:        '${escapeStr(d['type'] ?? '')}',           // e.g. Akikah, Ulang Tahun, Syukuran
+  type:        '${escapeStr(d['type'] ?? '')}',           // e.g. Aqiqah, Ulang Tahun, Syukuran
   dateISO:     '${escapeStr(d['dateISO'] ?? '')}',       // YYYY-MM-DD
   timeLabel:   '${escapeStr(d['timeLabel'] ?? '')}',
   timezone:    '${escapeStr(d['timezone'] ?? '')}',
