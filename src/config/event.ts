@@ -28,7 +28,7 @@ export const event = {
   // ── Event ───────────────────────────────────────────────
   type: 'Aqiqah',           // e.g. Aqiqah, Ulang Tahun, Syukuran
   dateISO: '2026-04-18',       // YYYY-MM-DD
-  timeLabel: '10.00 WIB – Selesai',
+  timeLabel: '11.00 WIB – Selesai',
   timezone: '+07:00',
   /** Full ISO datetime string for countdown / XP bar scripts */
   get datetimeISO() {

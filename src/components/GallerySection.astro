@@ -29,26 +29,44 @@ const photos = [
 
     <div class="gallery-grid animate-on-scroll">
       {photos.map((p, i) => (
-        <div
-          class={`polaroid polaroid--${p.span} ${i % 2 === 0 ? 'tilt-left' : 'tilt-right'}`}
+        <article
+          class={`polaroid polaroid--${p.span} ${i % 2 === 0 ? 'tilt-left' : 'tilt-right'} ${p.src ? 'polaroid--clickable' : ''}`}
         >
           <div
             class="photo-placeholder"
             style={p.src ? '' : `background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`}
-            aria-label={p.label}
           >
             {p.src ? (
-              <Image src={p.src} alt={p.label} class="photo-real" loading="lazy" decoding="async" widths={[400, 800]} sizes="(max-width: 640px) 50vw, 33vw" format="webp" quality={80} />
+              <button
+                type="button"
+                class="photo-trigger"
+                data-photo={p.src.src}
+                data-label={p.label}
+                aria-label={`Lihat ${p.label} dalam ukuran besar`}
+              >
+                <Image src={p.src} alt={p.label} class="photo-real" loading="lazy" decoding="async" widths={[400, 800]} sizes="(max-width: 640px) 50vw, 33vw" format="webp" quality={80} />
+              </button>
             ) : (
               <>
                 <div class="shimmer-overlay"></div>
-                <span class="photo-emoji">📷</span>
+                <span class="photo-emoji" aria-hidden="true">📷</span>
               </>
             )}
           </div>
           <p class="polaroid-caption">{p.label}</p>
-        </div>
+        </article>
       ))}
+    </div>
+
+    <div class="photo-modal" id="photo-modal" aria-hidden="true">
+      <div class="photo-modal__backdrop" data-close-modal></div>
+      <div class="photo-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
+        <button type="button" class="photo-modal__close" data-close-modal aria-label="Tutup foto">
+          ✕
+        </button>
+        <img id="photo-modal-image" class="photo-modal__image" src="" alt="" />
+        <p id="photo-modal-title" class="photo-modal__caption"></p>
+      </div>
     </div>
 
     <p class="gallery-note animate-on-scroll">
@@ -56,6 +74,58 @@ const photos = [
     </p>
   </div>
 </section>
+
+<script is:inline>
+  (() => {
+    const modal = document.getElementById('photo-modal');
+    const modalImage = document.getElementById('photo-modal-image');
+    const modalTitle = document.getElementById('photo-modal-title');
+
+    if (!modal || !modalImage || !modalTitle) return;
+
+    let lastFocused = null;
+
+    const openModal = (src, label, triggerEl) => {
+      lastFocused = triggerEl;
+      modalImage.src = src;
+      modalImage.alt = label;
+      modalTitle.textContent = label;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      modal.querySelector('.photo-modal__close')?.focus();
+    };
+
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      modalImage.src = '';
+      document.body.classList.remove('modal-open');
+      if (lastFocused instanceof HTMLElement) lastFocused.focus();
+    };
+
+    document.addEventListener('click', (event) => {
+      const trigger = event.target.closest('.photo-trigger');
+      if (trigger) {
+        const src = trigger.getAttribute('data-photo');
+        const label = trigger.getAttribute('data-label') || 'Foto album Emir';
+        if (src) openModal(src, label, trigger);
+        return;
+      }
+
+      const closeEl = event.target.closest('[data-close-modal]');
+      if (closeEl && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
 
 <style>
   .gallery-section {
@@ -102,10 +172,13 @@ const photos = [
     flex-direction: column;
     gap: 12px;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .polaroid--clickable {
     cursor: pointer;
   }
 
-  .polaroid:hover {
+  .polaroid--clickable:hover {
     transform: scale(1.04) rotate(0deg) !important;
     z-index: 2;
   }
@@ -127,6 +200,23 @@ const photos = [
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .photo-trigger {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+
+  .photo-trigger:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
   }
 
   .photo-real {
@@ -178,6 +268,92 @@ const photos = [
     font-style: italic;
   }
 
+  .photo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .photo-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .photo-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(3px);
+  }
+
+  .photo-modal__sheet {
+    position: relative;
+    width: min(100%, 560px);
+    max-height: 88vh;
+    background: #fff;
+    border-radius: 18px;
+    padding: 12px 12px 16px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: modal-pop 0.25s ease-out;
+  }
+
+  .photo-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.68);
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .photo-modal__image {
+    width: 100%;
+    max-height: 74vh;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #f4f1eb;
+  }
+
+  .photo-modal__caption {
+    margin: 0;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+
+  :global(body.modal-open) {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  @keyframes modal-pop {
+    from {
+      transform: translateY(14px) scale(0.98);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
   /* Desktop — 3-col masonry with spans */
   @media (min-width: 769px) {
     .gallery-grid {
@@ -195,6 +371,32 @@ const photos = [
       grid-template-columns: 1fr;
       grid-auto-rows: 260px;
       gap: 14px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .photo-modal {
+      padding: 10px;
+      align-items: end;
+    }
+
+    .photo-modal__sheet {
+      width: 100%;
+      border-radius: 16px 16px 12px 12px;
+      padding: 10px 10px 14px;
+      max-height: 90vh;
+    }
+
+    .photo-modal__close {
+      top: 10px;
+      right: 10px;
+      width: 44px;
+      height: 44px;
+    }
+
+    .photo-modal__caption {
+      font-size: 0.95rem;
+      padding-inline: 8px;
     }
   }
 </style>
