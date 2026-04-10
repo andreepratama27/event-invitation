@@ -27,14 +27,14 @@ export const POST: APIRoute = async ({ request }) => {
   const { name, message } = body as { name: string; message: string };
 
   if (!name || name.trim().length < 2) {
-    return new Response(JSON.stringify({ ok: false, error: 'Name is required (min 2 chars)' }), {
+    return new Response(JSON.stringify({ ok: false, error: 'Nama wajib diisi (minimal 2 karakter)' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
   if (!message || message.trim().length < 5) {
-    return new Response(JSON.stringify({ ok: false, error: 'Message is required (min 5 chars)' }), {
+    return new Response(JSON.stringify({ ok: false, error: 'Ucapan wajib diisi (minimal 5 karakter)' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });

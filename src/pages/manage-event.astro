@@ -15,7 +15,7 @@ if (!session?.value) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Event Setup · {event.site.ogTitle}</title>
+    <title>Pengaturan Acara · {event.site.ogTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
@@ -25,9 +25,9 @@ if (!session?.value) {
         <div class="setup-header-inner">
           <div class="level-tag">
             <span class="level-dot"></span>
-            SETTINGS · EVENT CONFIG
+            PENGATURAN · KONFIGURASI ACARA
           </div>
-          <h1 class="setup-title">⚙️ Event Setup</h1>
+          <h1 class="setup-title">⚙️ Pengaturan Acara</h1>
           <p class="setup-subtitle">Edit konfigurasi undangan di sini</p>
         </div>
       </header>
@@ -105,7 +105,7 @@ if (!session?.value) {
                   <input type="text" id="event-timeLabel" name="timeLabel" value={event.timeLabel} placeholder="10.00 WIB – Selesai" required />
                 </div>
                 <div class="form-field">
-                  <label for="event-timezone">Timezone</label>
+                  <label for="event-timezone">Zona Waktu</label>
                   <input type="text" id="event-timezone" name="timezone" value={event.timezone} placeholder="+07:00" required />
                 </div>
                 <div class="form-field form-field--full">
@@ -113,7 +113,7 @@ if (!session?.value) {
                   <input type="text" id="event-dateLabel" name="dateLabel" value={event.dateLabel} placeholder="Sabtu, 18 April 2026" required />
                 </div>
                 <div class="form-field form-field--full">
-                  <label for="event-dresscode">Dress Code</label>
+                  <label for="event-dresscode">Kode Berbusana</label>
                   <input type="text" id="event-dresscode" name="dresscode" value={event.dresscode} placeholder="Busana Muslim / Sopan (kosongkan untuk sembunyikan)" />
                 </div>
               </div>
@@ -135,11 +135,11 @@ if (!session?.value) {
                   <input type="text" id="venue-address" name="venue.address" value={event.venue.address} required />
                 </div>
                 <div class="form-field form-field--full">
-                  <label for="venue-mapsUrl">Google Maps URL</label>
+                  <label for="venue-mapsUrl">Tautan Google Maps</label>
                   <input type="url" id="venue-mapsUrl" name="venue.mapsUrl" value={event.venue.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
                 </div>
                 <div class="form-field form-field--full">
-                  <label for="venue-embedUrl">Google Maps Embed URL</label>
+                  <label for="venue-embedUrl">Tautan Embed Google Maps</label>
                   <input type="url" id="venue-embedUrl" name="venue.embedUrl" value={event.venue.embedUrl} placeholder="https://maps.google.com/maps?q=..." />
                 </div>
               </div>
@@ -167,7 +167,7 @@ if (!session?.value) {
             <fieldset class="form-section clay-white animate-on-scroll">
               <legend class="form-legend">
                 <span class="legend-icon">🌐</span>
-                Site / SEO
+                Situs / SEO
               </legend>
               <div class="form-grid">
                 <div class="form-field form-field--full">
@@ -175,15 +175,15 @@ if (!session?.value) {
                   <input type="url" id="site-url" name="site.url" value={event.site.url} required />
                 </div>
                 <div class="form-field">
-                  <label for="site-ogImagePath">OG Image Path</label>
+                  <label for="site-ogImagePath">Path Gambar OG</label>
                   <input type="text" id="site-ogImagePath" name="site.ogImagePath" value={event.site.ogImagePath} placeholder="/og-image.svg" />
                 </div>
                 <div class="form-field">
-                  <label for="site-locale">Locale</label>
+                  <label for="site-locale">Lokal</label>
                   <input type="text" id="site-locale" name="site.locale" value={event.site.locale} placeholder="id_ID" />
                 </div>
                 <div class="form-field">
-                  <label for="site-lang">Language</label>
+                  <label for="site-lang">Bahasa</label>
                   <input type="text" id="site-lang" name="site.lang" value={event.site.lang} placeholder="id" />
                 </div>
               </div>
@@ -192,7 +192,7 @@ if (!session?.value) {
             <!-- Actions -->
             <div class="form-actions animate-on-scroll">
               <button type="button" id="btn-save" class="clay-btn clay-btn--green">
-                💾 Save Config
+                💾 Simpan Konfigurasi
               </button>
             </div>
             <div id="save-status" class="save-status" style="display:none"></div>
@@ -205,7 +205,7 @@ if (!session?.value) {
       <!-- Back link -->
       <div class="section-wrapper" style="padding-top:0">
         <div class="section-inner" style="text-align:center">
-          <a href="/" class="back-link">← Kembali ke Undangan</a>
+          <a href="/" class="back-link">← Kembali ke undangan</a>
         </div>
       </div>
     </div>
@@ -248,12 +248,12 @@ if (!session?.value) {
       const result = await res.json();
 
       if (result.ok) {
-        showStatus('✅ Config saved to event.ts! Restart dev server to see changes.', 'success');
+        showStatus('✅ Konfigurasi tersimpan ke event.ts! Restart server pengembangan untuk melihat perubahan.', 'success');
       } else {
-        showStatus(`❌ Failed: ${result.error}`, 'error');
+        showStatus(`❌ Gagal: ${result.error}`, 'error');
       }
     } catch (err) {
-      showStatus(`❌ Network error: ${err instanceof Error ? err.message : 'Unknown'}`, 'error');
+      showStatus(`❌ Kesalahan jaringan: ${err instanceof Error ? err.message : 'Tidak diketahui'}`, 'error');
     } finally {
       btn.innerHTML = original;
       btn.disabled = false;
