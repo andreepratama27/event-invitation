@@ -1,0 +1,180 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+
+const { site, baby } = event;
+const siteHost = site.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+const siteBaseUrl = site.url.replace(/\/$/, '');
+---
+
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kirim Undangan · {baby.fullName}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <main class="send-page">
+      <section class="send-card clay-white" aria-labelledby="send-title">
+        <h1 id="send-title" class="send-title">Kirim Undangan</h1>
+
+        <div class="send-form">
+          <label for="guest-name" class="sr-only">Nama tamu</label>
+          <input
+            id="guest-name"
+            type="text"
+            class="send-input"
+            name="guest"
+            placeholder="Tulis nama tamu..."
+            required
+            minlength="2"
+            autocomplete="name"
+          />
+          <button type="button" id="copy-btn" class="clay-btn clay-btn--green send-btn">Copy Link</button>
+        </div>
+
+        <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
+        <p id="link-result" class="link-result" hidden>
+          <a id="invite-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
+
+<script define:vars={{ siteHost, siteBaseUrl }}>
+  const input = document.getElementById('guest-name');
+  const copyBtn = document.getElementById('copy-btn');
+  const linkResult = document.getElementById('link-result');
+  const inviteLink = document.getElementById('invite-link');
+  const copyStatus = document.getElementById('copy-status');
+
+  copyBtn?.addEventListener('click', async () => {
+    const guestName = input?.value?.trim() ?? '';
+    if (!guestName) {
+      copyStatus.textContent = 'Isi nama tamu terlebih dahulu.';
+      input?.focus();
+      return;
+    }
+
+    const guestQuery = encodeURIComponent(guestName);
+    const linkText = `${siteHost}/?to=${guestQuery}`;
+    const linkHref = `${siteBaseUrl}/?to=${guestQuery}`;
+
+    try {
+      await navigator.clipboard.writeText(linkText);
+      copyStatus.textContent = '✅ Link berhasil disalin.';
+    } catch {
+      copyStatus.textContent = '⚠️ Gagal menyalin otomatis. Silakan salin link di bawah.';
+    }
+
+    if (inviteLink && linkResult) {
+      inviteLink.textContent = linkText;
+      inviteLink.href = linkHref;
+      linkResult.hidden = false;
+    }
+  });
+</script>
+
+<style is:global>
+  .send-page {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+  }
+
+  .send-card {
+    width: min(100%, 560px);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+
+  .send-title {
+    font-size: clamp(1.6rem, 6vw, 2rem);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--color-dark);
+    text-align: center;
+  }
+
+  .send-form {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  .send-input {
+    width: 100%;
+    min-width: 0;
+    border: 2px solid rgba(0, 150, 199, 0.24);
+    border-radius: var(--radius-pill);
+    padding: 0.82rem 1rem;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    color: var(--color-dark);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .send-input:focus-visible {
+    border-color: var(--color-green);
+    box-shadow: 0 0 0 4px rgba(72, 202, 228, 0.26);
+  }
+
+  .send-btn {
+    min-width: 112px;
+  }
+
+  .copy-status {
+    min-height: 1.4rem;
+    margin-top: 0.7rem;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .link-result {
+    margin-top: 0.3rem;
+    text-align: center;
+  }
+
+  .link-result a {
+    color: var(--color-purple);
+    font-weight: 600;
+    text-decoration: underline;
+    word-break: break-all;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 520px) {
+    .send-card {
+      padding: 1.2rem 1rem;
+    }
+
+    .send-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .send-btn {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+</style>
