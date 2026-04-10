@@ -3,7 +3,6 @@ import '../styles/global.css';
 import { event } from '../config/event';
 
 const { site, baby } = event;
-const siteHost = site.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const siteBaseUrl = site.url.replace(/\/$/, '');
 ---
 
@@ -44,7 +43,7 @@ const siteBaseUrl = site.url.replace(/\/$/, '');
   </body>
 </html>
 
-<script define:vars={{ siteHost, siteBaseUrl }}>
+<script define:vars={{ siteBaseUrl }}>
   const input = document.getElementById('guest-name');
   const copyBtn = document.getElementById('copy-btn');
   const linkResult = document.getElementById('link-result');
@@ -60,18 +59,17 @@ const siteBaseUrl = site.url.replace(/\/$/, '');
     }
 
     const guestQuery = encodeURIComponent(guestName);
-    const linkText = `${siteHost}/?to=${guestQuery}`;
     const linkHref = `${siteBaseUrl}/?to=${guestQuery}`;
 
     try {
-      await navigator.clipboard.writeText(linkText);
+      await navigator.clipboard.writeText(linkHref);
       copyStatus.textContent = '✅ Link berhasil disalin.';
     } catch {
       copyStatus.textContent = '⚠️ Gagal menyalin otomatis. Silakan salin link di bawah.';
     }
 
     if (inviteLink && linkResult) {
-      inviteLink.textContent = linkText;
+      inviteLink.textContent = linkHref;
       inviteLink.href = linkHref;
       linkResult.hidden = false;
     }
