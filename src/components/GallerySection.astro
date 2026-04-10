@@ -8,7 +8,7 @@ import keluargaKecil from '../assets/gallery/keluarga-kecil.JPG';
 
 const photos = [
   { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall',   src: null           },
-  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'wide',   src: senyumBayi     },
+  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'tall',   src: senyumBayi     },
   { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square', src: tidurNyenyak   },
   { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall',   src: bersamaPapa    },
   { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square', src: bersamaIbu     },
@@ -82,10 +82,10 @@ const photos = [
   /* Masonry-style grid */
   .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 180px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 220px;
     grid-auto-flow: dense;
-    gap: 20px;
+    gap: 16px;
   }
 
   /* Polaroid frame */
@@ -113,10 +113,10 @@ const photos = [
   .tilt-left  { transform: rotate(-1.5deg); }
   .tilt-right { transform: rotate(1.5deg); }
 
-  /* Grid spans */
-  .polaroid--tall   { grid-row: span 2; }
-  .polaroid--wide   { grid-column: span 2; }
-  .polaroid--square { /* default 1x1 */ }
+  /* Grid spans — only apply on larger screens */
+  .polaroid--tall   { /* default 1×1 on mobile */ }
+  .polaroid--wide   { /* unused — kept for future use */ }
+  .polaroid--square { /* default 1×1 */ }
 
   /* Photo placeholder */
   .photo-placeholder {
@@ -178,27 +178,23 @@ const photos = [
     font-style: italic;
   }
 
-  /* Responsive */
-  @media (max-width: 640px) {
+  /* Desktop — 3-col masonry with spans */
+  @media (min-width: 769px) {
     .gallery-grid {
-      grid-template-columns: repeat(2, 1fr);
-      grid-auto-rows: 150px;
-      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 180px;
+      gap: 20px;
     }
-    .polaroid--wide {
-      grid-column: span 2;
-    }
+    .polaroid--tall { grid-row: span 2; }
+    .polaroid--wide { grid-column: span 2; }
   }
 
+  /* Small mobile — single column for max photo visibility */
   @media (max-width: 400px) {
     .gallery-grid {
       grid-template-columns: 1fr;
-      grid-auto-rows: 200px;
-    }
-    .polaroid--wide,
-    .polaroid--tall {
-      grid-column: span 1;
-      grid-row: span 1;
+      grid-auto-rows: 260px;
+      gap: 14px;
     }
   }
 </style>
