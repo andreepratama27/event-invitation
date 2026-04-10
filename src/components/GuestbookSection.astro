@@ -77,21 +77,45 @@
     </div>
 
     <!-- Messages list -->
-    <div class="messages-section animate-on-scroll">
+    <div class="messages-section clay-white animate-on-scroll">
       <div class="messages-header">
-        <span class="messages-header-icon">💌</span>
-        <h3 class="messages-header-title">Ucapan & Doa dari Tamu</h3>
+        <div class="messages-header-left">
+          <span class="messages-header-icon">💌</span>
+          <div>
+            <h3 class="messages-header-title">Ucapan &amp; Doa</h3>
+            <p class="messages-header-sub">dari Para Tamu</p>
+          </div>
+        </div>
+        <div id="messages-count-badge" class="messages-count-badge" hidden>
+          <span id="messages-count">0</span> ucapan
+        </div>
       </div>
 
       <div id="guestbook-loading" class="messages-loading">
-        <span class="loading-spinner">⏳</span> Memuat ucapan...
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Memuat ucapan...</p>
       </div>
 
       <div id="guestbook-empty" class="messages-empty" hidden>
-        <p>Belum ada ucapan. Jadilah yang pertama! 🌟</p>
+        <div class="empty-icon">🌟</div>
+        <p>Belum ada ucapan.</p>
+        <p class="empty-sub">Jadilah yang pertama kirim doa!</p>
       </div>
 
       <div id="guestbook-messages" class="messages-list"></div>
+
+      <!-- Pagination -->
+      <div id="guestbook-pagination" class="pagination" hidden>
+        <button type="button" class="clay-btn clay-btn--purple pagination-btn" id="pagination-prev" disabled>
+          ← Sebelumnya
+        </button>
+        <span class="pagination-info" id="pagination-info"></span>
+        <button type="button" class="clay-btn clay-btn--purple pagination-btn" id="pagination-next">
+          Selanjutnya →
+        </button>
+      </div>
     </div>
 
     <!-- Footer note -->
@@ -113,6 +137,14 @@
     var messagesContainer = document.getElementById('guestbook-messages');
     var loadingEl = document.getElementById('guestbook-loading');
     var emptyEl = document.getElementById('guestbook-empty');
+    var paginationEl = document.getElementById('guestbook-pagination');
+    var prevBtn = document.getElementById('pagination-prev');
+    var nextBtn = document.getElementById('pagination-next');
+    var pageInfoEl = document.getElementById('pagination-info');
+
+    var PER_PAGE = 5;
+    var allMessages = [];
+    var currentPage = 0;
 
     function formatDate(dateStr) {
       var d = new Date(dateStr);
@@ -122,25 +154,128 @@
       });
     }
 
-    function createMessageCard(entry) {
-      var card = document.createElement('div');
-      card.className = 'message-card';
-      card.innerHTML =
-        '<div class="message-card-header">' +
-          '<span class="message-avatar">👤</span>' +
-          '<div>' +
-            '<p class="message-name">' + escapeHtml(entry.name) + '</p>' +
-            '<p class="message-date">' + formatDate(entry.created_at) + '</p>' +
-          '</div>' +
-        '</div>' +
-        '<p class="message-text">' + escapeHtml(entry.message) + '</p>';
-      return card;
-    }
-
     function escapeHtml(str) {
       var div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+
+    var CARD_ACCENTS = [
+      { bar: '#FFB703', avatar: '#CC9200', deco: '⭐' },
+      { bar: '#0096C7', avatar: '#006B8F', deco: '💙' },
+      { bar: '#FB8500', avatar: '#C66A00', deco: '🎈' },
+      { bar: '#023E8A', avatar: '#012A5E', deco: '🌙' },
+      { bar: '#9B5DE5', avatar: '#6B3FA0', deco: '💜' }
+    ];
+
+    function hashAccent(str) {
+      var h = 0;
+      for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffff;
+      return CARD_ACCENTS[h % CARD_ACCENTS.length];
+    }
+
+    function updateCountBadge(delta) {
+      var badge = document.getElementById('messages-count-badge');
+      var countEl = document.getElementById('messages-count');
+      if (!badge || !countEl) return;
+      var current = parseInt(countEl.textContent, 10) || 0;
+      var next = delta === 'set' ? arguments[1] : current + delta;
+      if (next > 0) {
+        countEl.textContent = next;
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    }
+
+    function createMessageCard(entry, animate) {
+      var accent = hashAccent(entry.name);
+      var initial = entry.name.trim().charAt(0).toUpperCase();
+      var card = document.createElement('div');
+      card.className = 'message-card';
+      card.style.setProperty('--bar', accent.bar);
+      card.style.setProperty('--av', accent.avatar);
+      card.innerHTML =
+        '<div class="message-left-bar"></div>' +
+        '<div class="message-body">' +
+          '<div class="message-card-header">' +
+            '<div class="message-avatar-circle">' + escapeHtml(initial) + '</div>' +
+            '<div class="message-meta">' +
+              '<p class="message-name">' + escapeHtml(entry.name) + '</p>' +
+              '<p class="message-date">' + formatDate(entry.created_at) + '</p>' +
+            '</div>' +
+            '<span class="message-deco" aria-hidden="true">' + accent.deco + '</span>' +
+          '</div>' +
+          '<p class="message-text">' + escapeHtml(entry.message) + '</p>' +
+        '</div>';
+
+      if (animate) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-16px) scale(0.96)';
+        card.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0) scale(1)';
+          });
+        });
+      }
+
+      return card;
+    }
+
+    /* ---------- transition helpers ---------- */
+    function fadeOut(el, duration, cb) {
+      el.style.transition = 'opacity ' + duration + 'ms ease, transform ' + duration + 'ms ease';
+      el.style.opacity = '0';
+      el.style.transform = 'scale(0.95) translateY(6px)';
+      setTimeout(function () {
+        el.hidden = true;
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.opacity = '';
+        if (cb) cb();
+      }, duration + 20);
+    }
+
+    function fadeIn(el, duration) {
+      el.style.opacity = '0';
+      el.style.transform = 'scale(0.92) translateY(10px)';
+      el.style.transition = 'none';
+      el.hidden = false;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          el.style.transition =
+            'opacity ' + duration + 'ms ease, ' +
+            'transform ' + duration + 'ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+          el.style.opacity = '1';
+          el.style.transform = 'scale(1) translateY(0)';
+        });
+      });
+    }
+    /* ---------------------------------------- */
+
+    function renderPage(page) {
+      currentPage = page;
+      if (!messagesContainer) return;
+      var totalPages = Math.ceil(allMessages.length / PER_PAGE);
+      var start = page * PER_PAGE;
+      var end = start + PER_PAGE;
+      var pageItems = allMessages.slice(start, end);
+
+      messagesContainer.innerHTML = '';
+      pageItems.forEach(function (entry) {
+        messagesContainer.appendChild(createMessageCard(entry, false));
+      });
+
+      if (paginationEl && totalPages > 1) {
+        paginationEl.hidden = false;
+        if (prevBtn) prevBtn.disabled = page === 0;
+        if (nextBtn) nextBtn.disabled = page >= totalPages - 1;
+        if (pageInfoEl) pageInfoEl.textContent = (page + 1) + ' / ' + totalPages;
+      } else if (paginationEl) {
+        paginationEl.hidden = true;
+      }
     }
 
     function loadMessages() {
@@ -155,17 +290,27 @@
           }
 
           if (emptyEl) emptyEl.hidden = true;
-          if (messagesContainer) {
-            messagesContainer.innerHTML = '';
-            result.data.forEach(function (entry) {
-              messagesContainer.appendChild(createMessageCard(entry));
-            });
-          }
+          allMessages = result.data;
+          updateCountBadge('set', allMessages.length);
+          renderPage(0);
         })
         .catch(function () {
           if (loadingEl) loadingEl.hidden = true;
           if (emptyEl) emptyEl.hidden = false;
         });
+    }
+
+    // Pagination buttons
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        if (currentPage > 0) renderPage(currentPage - 1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        var totalPages = Math.ceil(allMessages.length / PER_PAGE);
+        if (currentPage < totalPages - 1) renderPage(currentPage + 1);
+      });
     }
 
     // Load messages on page load
@@ -186,7 +331,6 @@
         if (!name || name.length < 2) { nameEl.focus(); return; }
         if (!msg || msg.length < 5) { msgEl.focus(); return; }
 
-        // Disable button while submitting
         if (submitBtn) {
           submitBtn.disabled = true;
           submitBtn.textContent = '⏳ Mengirim...';
@@ -211,24 +355,17 @@
               return;
             }
 
-            // Show success
-            form.style.opacity = '0';
-            form.style.transform = 'scale(0.95)';
-            setTimeout(function () {
-              form.hidden = true;
-              success.hidden = false;
-              success.style.opacity = '0';
-              success.style.transform = 'scale(0.8)';
-              void success.offsetHeight;
-              success.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-              success.style.opacity = '1';
-              success.style.transform = 'scale(1)';
-            }, 300);
+            // Fade form out → fade success in
+            fadeOut(form, 280, function () {
+              fadeIn(success, 480);
+            });
 
-            // Prepend new message to list
-            if (result.data && messagesContainer) {
+            // Prepend new message and re-render first page
+            if (result.data) {
               if (emptyEl) emptyEl.hidden = true;
-              messagesContainer.prepend(createMessageCard(result.data));
+              allMessages.unshift(result.data);
+              updateCountBadge('set', allMessages.length);
+              renderPage(0);
             }
           })
           .catch(function () {
@@ -244,19 +381,18 @@
       });
     }
 
-    // Write again button
+    // Write again button — smooth transition back to form
     if (writeAgainBtn && form && success) {
       writeAgainBtn.addEventListener('click', function () {
-        success.hidden = true;
-        form.hidden = false;
-        form.style.opacity = '1';
-        form.style.transform = 'scale(1)';
-        form.reset();
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '⭐ Kirim Ucapan';
-        }
-        if (errorEl) errorEl.hidden = true;
+        fadeOut(success, 260, function () {
+          form.reset();
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '⭐ Kirim Ucapan';
+          }
+          if (errorEl) errorEl.hidden = true;
+          fadeIn(form, 420);
+        });
       });
     }
   })();
@@ -332,7 +468,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
   .form-group {
@@ -402,6 +537,7 @@
     gap: 12px;
     padding: 20px 0;
     text-align: center;
+    will-change: opacity, transform;
   }
 
   .success-icon {
@@ -475,104 +611,288 @@
     font-size: 0.95rem;
   }
 
-  /* Messages section */
+  /* ── Messages section wrapper ── */
   .messages-section {
     margin-top: 1.5rem;
     margin-bottom: 2rem;
+    border-radius: var(--radius-lg);
+    padding: 22px 18px 24px;
+    position: relative;
+    overflow: hidden;
   }
 
+  /* Dotted board texture */
+  .messages-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(2, 62, 138, 0.07) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .messages-header,
+  .messages-loading,
+  .messages-empty,
+  .messages-list,
+  .pagination {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ── */
   .messages-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
-    margin-bottom: 1rem;
+    margin-bottom: 18px;
+  }
+
+  .messages-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .messages-header-icon {
-    font-size: 1.6rem;
+    font-size: 2.2rem;
+    animation: float 3.5s ease-in-out infinite;
+    display: inline-block;
   }
 
   .messages-header-title {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--color-dark);
+    line-height: 1.15;
   }
 
-  .messages-loading,
+  .messages-header-sub {
+    font-size: 0.73rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  /* Count badge */
+  .messages-count-badge {
+    background: linear-gradient(135deg, var(--color-purple-light), var(--color-purple));
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 5px 13px;
+    border-radius: 999px;
+    box-shadow: 0 3px 0 var(--color-purple-dark), 0 4px 10px rgba(2,62,138,0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Loading state ── */
+  .messages-loading {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--color-muted);
+  }
+
+  .messages-loading p {
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+
+  .loading-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .loading-dots span {
+    width: 9px;
+    height: 9px;
+    background: var(--color-purple-light);
+    border-radius: 50%;
+    animation: loading-bounce 1.3s ease-in-out infinite;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes loading-bounce {
+    0%, 80%, 100% { transform: scale(0.55); opacity: 0.35; }
+    40%            { transform: scale(1);    opacity: 1; }
+  }
+
+  /* ── Empty state ── */
   .messages-empty {
     text-align: center;
-    padding: 2rem 1rem;
-    color: var(--color-muted);
-    font-size: 1rem;
+    padding: 2.5rem 1rem;
   }
 
-  .loading-spinner {
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    animation: float 3s ease-in-out infinite;
     display: inline-block;
-    animation: float 2s ease-in-out infinite;
   }
 
+  .messages-empty p {
+    color: var(--color-dark);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .empty-sub {
+    color: var(--color-muted) !important;
+    font-weight: 400 !important;
+    font-size: 0.85rem !important;
+    margin-top: 4px;
+  }
+
+  /* ── Messages list ── */
   .messages-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 4px;
+    gap: 10px;
   }
 
-  .messages-list::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .messages-list::-webkit-scrollbar-thumb {
-    background: rgba(2, 62, 138, 0.2);
-    border-radius: 3px;
-  }
-
+  /* ── Message card ── */
   .message-card {
-    background: linear-gradient(145deg, #ffffff, #f5f0ff);
-    border: 2px solid rgba(0, 119, 182, 0.15);
+    display: flex;
+    background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%);
     border-radius: 18px;
-    padding: 16px 18px;
+    overflow: hidden;
     box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      0 4px 0 #c4dae8,
+      0 6px 16px rgba(0, 0, 0, 0.10),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.04),
+      inset 0 3px 8px rgba(255, 255, 255, 0.7);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .message-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 0 #c4dae8,
+      0 10px 24px rgba(0, 0, 0, 0.12),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.04),
+      inset 0 3px 8px rgba(255, 255, 255, 0.7);
+  }
+
+  /* Colored left accent bar */
+  .message-left-bar {
+    width: 5px;
+    background: var(--bar, var(--color-purple));
+    flex-shrink: 0;
+  }
+
+  /* Card inner body */
+  .message-body {
+    padding: 13px 14px 14px 14px;
+    flex: 1;
+    min-width: 0;
   }
 
   .message-card-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 9px;
   }
 
-  .message-avatar {
-    font-size: 1.4rem;
+  /* Avatar circle with initial */
+  .message-avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--av, var(--color-purple));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .message-meta {
+    flex: 1;
+    min-width: 0;
   }
 
   .message-name {
-    font-size: 0.95rem;
+    font-size: 0.93rem;
     font-weight: 700;
-    color: var(--color-purple);
+    color: var(--color-dark);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .message-date {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     color: var(--color-muted);
+    margin-top: 2px;
+  }
+
+  .message-deco {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    line-height: 1;
   }
 
   .message-text {
-    font-size: 0.95rem;
-    color: var(--color-dark);
-    line-height: 1.6;
+    font-size: 0.9rem;
+    color: #384f5e;
+    line-height: 1.65;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  /* ── Pagination ── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 2px dashed rgba(0, 0, 0, 0.06);
+  }
+
+  .pagination-btn {
+    font-size: 0.8rem;
+    padding: 10px 18px;
+    min-width: unset;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .pagination-info {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    min-width: 50px;
+    text-align: center;
   }
 
   @media (max-width: 480px) {
     .card-header, .card-body {
       padding-left: 18px;
       padding-right: 18px;
+    }
+    .pagination-btn {
+      font-size: 0.72rem;
+      padding: 8px 14px;
     }
   }
 </style>
