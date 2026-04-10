@@ -1,18 +1,55 @@
 ---
-import { Image } from 'astro:assets';
-import senyumBayi from '../assets/gallery/senyum-bayi.JPG';
-import tidurNyenyak from '../assets/gallery/tidur-nyenyak.JPG';
-import bersamaPapa from '../assets/gallery/bersama-papa.JPG';
-import bersamaIbu from '../assets/gallery/bersama-ibu.JPG';
-import keluargaKecil from '../assets/gallery/keluarga-kecil.JPG';
+import { Image } from "astro:assets";
+import momentPertama from "../assets/gallery/momen-pertama.JPG";
+import senyumBayi from "../assets/gallery/senyum-bayi.JPG";
+import tidurNyenyak from "../assets/gallery/tidur-nyenyak.JPG";
+import bersamaPapa from "../assets/gallery/bersama-papa.JPG";
+import bersamaIbu from "../assets/gallery/bersama-ibu.JPG";
+import keluargaKecil from "../assets/gallery/keluarga-kecil.JPG";
 
 const photos = [
-  { label: 'Momen Pertama',  color: '#00B4D8', bg: '#90E0EF', span: 'tall',   src: null           },
-  { label: 'Senyum Bayi',    color: '#FB8500', bg: '#FFA94D', span: 'tall',   src: senyumBayi     },
-  { label: 'Tidur Nyenyak',  color: '#0096C7', bg: '#48CAE4', span: 'square', src: tidurNyenyak   },
-  { label: 'Bersama Ayah',   color: '#023E8A', bg: '#0077B6', span: 'tall',   src: bersamaPapa    },
-  { label: 'Bersama Ibu',    color: '#FFB703', bg: '#FFD166', span: 'square', src: bersamaIbu     },
-  { label: 'Keluarga Kecil', color: '#FB8500', bg: '#FFA94D', span: 'square', src: keluargaKecil  },
+  {
+    label: "Momen Pertama",
+    color: "#00B4D8",
+    bg: "#90E0EF",
+    span: "tall",
+    src: momentPertama,
+  },
+  {
+    label: "Senyum Bayi",
+    color: "#FB8500",
+    bg: "#FFA94D",
+    span: "tall",
+    src: senyumBayi,
+  },
+  {
+    label: "Tidur Nyenyak",
+    color: "#0096C7",
+    bg: "#48CAE4",
+    span: "square",
+    src: tidurNyenyak,
+  },
+  {
+    label: "Bersama Ayah",
+    color: "#023E8A",
+    bg: "#0077B6",
+    span: "tall",
+    src: bersamaPapa,
+  },
+  {
+    label: "Bersama Ibu",
+    color: "#FFB703",
+    bg: "#FFD166",
+    span: "square",
+    src: bersamaIbu,
+  },
+  {
+    label: "Keluarga Kecil",
+    color: "#FB8500",
+    bg: "#FFA94D",
+    span: "square",
+    src: keluargaKecil,
+  },
 ];
 ---
 
@@ -28,40 +65,68 @@ const photos = [
     </p>
 
     <div class="gallery-grid animate-on-scroll">
-      {photos.map((p, i) => (
-        <article
-          class={`polaroid polaroid--${p.span} ${i % 2 === 0 ? 'tilt-left' : 'tilt-right'} ${p.src ? 'polaroid--clickable' : ''}`}
-        >
-          <div
-            class="photo-placeholder"
-            style={p.src ? '' : `background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`}
+      {
+        photos.map((p, i) => (
+          <article
+            class={`polaroid polaroid--${p.span} ${i % 2 === 0 ? "tilt-left" : "tilt-right"} ${p.src ? "polaroid--clickable" : ""}`}
           >
-            {p.src ? (
-              <button
-                type="button"
-                class="photo-trigger"
-                data-photo={p.src.src}
-                data-label={p.label}
-                aria-label={`Lihat ${p.label} dalam ukuran besar`}
-              >
-                <Image src={p.src} alt={p.label} class="photo-real" loading="lazy" decoding="async" widths={[400, 800]} sizes="(max-width: 640px) 50vw, 33vw" format="webp" quality={80} />
-              </button>
-            ) : (
-              <>
-                <div class="shimmer-overlay"></div>
-                <span class="photo-emoji" aria-hidden="true">📷</span>
-              </>
-            )}
-          </div>
-          <p class="polaroid-caption">{p.label}</p>
-        </article>
-      ))}
+            <div
+              class="photo-placeholder"
+              style={
+                p.src
+                  ? ""
+                  : `background: linear-gradient(135deg, ${p.bg} 0%, ${p.color} 100%);`
+              }
+            >
+              {p.src ? (
+                <button
+                  type="button"
+                  class="photo-trigger"
+                  data-photo={p.src.src}
+                  data-label={p.label}
+                  aria-label={`Lihat ${p.label} dalam ukuran besar`}
+                >
+                  <Image
+                    src={p.src}
+                    alt={p.label}
+                    class="photo-real"
+                    loading="lazy"
+                    decoding="async"
+                    widths={[400, 800]}
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    format="webp"
+                    quality={80}
+                  />
+                </button>
+              ) : (
+                <>
+                  <div class="shimmer-overlay" />
+                  <span class="photo-emoji" aria-hidden="true">
+                    📷
+                  </span>
+                </>
+              )}
+            </div>
+            <p class="polaroid-caption">{p.label}</p>
+          </article>
+        ))
+      }
     </div>
 
     <div class="photo-modal" id="photo-modal" aria-hidden="true">
       <div class="photo-modal__backdrop" data-close-modal></div>
-      <div class="photo-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
-        <button type="button" class="photo-modal__close" data-close-modal aria-label="Tutup foto">
+      <div
+        class="photo-modal__sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="photo-modal-title"
+      >
+        <button
+          type="button"
+          class="photo-modal__close"
+          data-close-modal
+          aria-label="Tutup foto"
+        >
           ✕
         </button>
         <img id="photo-modal-image" class="photo-modal__image" src="" alt="" />
@@ -77,9 +142,9 @@ const photos = [
 
 <script is:inline>
   (() => {
-    const modal = document.getElementById('photo-modal');
-    const modalImage = document.getElementById('photo-modal-image');
-    const modalTitle = document.getElementById('photo-modal-title');
+    const modal = document.getElementById("photo-modal");
+    const modalImage = document.getElementById("photo-modal-image");
+    const modalTitle = document.getElementById("photo-modal-title");
 
     if (!modal || !modalImage || !modalTitle) return;
 
@@ -90,37 +155,37 @@ const photos = [
       modalImage.src = src;
       modalImage.alt = label;
       modalTitle.textContent = label;
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('modal-open');
-      modal.querySelector('.photo-modal__close')?.focus();
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+      modal.querySelector(".photo-modal__close")?.focus();
     };
 
     const closeModal = () => {
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-      modalImage.src = '';
-      document.body.classList.remove('modal-open');
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      modalImage.src = "";
+      document.body.classList.remove("modal-open");
       if (lastFocused instanceof HTMLElement) lastFocused.focus();
     };
 
-    document.addEventListener('click', (event) => {
-      const trigger = event.target.closest('.photo-trigger');
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest(".photo-trigger");
       if (trigger) {
-        const src = trigger.getAttribute('data-photo');
-        const label = trigger.getAttribute('data-label') || 'Foto album Emir';
+        const src = trigger.getAttribute("data-photo");
+        const label = trigger.getAttribute("data-label") || "Foto album Emir";
         if (src) openModal(src, label, trigger);
         return;
       }
 
-      const closeEl = event.target.closest('[data-close-modal]');
-      if (closeEl && modal.classList.contains('is-open')) {
+      const closeEl = event.target.closest("[data-close-modal]");
+      if (closeEl && modal.classList.contains("is-open")) {
         closeModal();
       }
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("is-open")) {
         closeModal();
       }
     });
@@ -131,7 +196,7 @@ const photos = [
   .gallery-section {
     padding-top: 4rem;
     padding-bottom: 4rem;
-    background: linear-gradient(180deg, var(--color-bg) 0%, #E8E0D5 100%);
+    background: linear-gradient(180deg, var(--color-bg) 0%, #e8e0d5 100%);
   }
 
   .section-heading {
@@ -165,9 +230,9 @@ const photos = [
     padding: 10px 10px 14px;
     box-shadow:
       0 8px 0 #d4cdc5,
-      0 14px 24px rgba(0,0,0,0.16),
-      inset 0 -3px 8px rgba(0,0,0,0.06),
-      inset 0 4px 10px rgba(255,255,255,0.9);
+      0 14px 24px rgba(0, 0, 0, 0.16),
+      inset 0 -3px 8px rgba(0, 0, 0, 0.06),
+      inset 0 4px 10px rgba(255, 255, 255, 0.9);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -183,13 +248,23 @@ const photos = [
     z-index: 2;
   }
 
-  .tilt-left  { transform: rotate(-1.5deg); }
-  .tilt-right { transform: rotate(1.5deg); }
+  .tilt-left {
+    transform: rotate(-1.5deg);
+  }
+  .tilt-right {
+    transform: rotate(1.5deg);
+  }
 
   /* Grid spans — only apply on larger screens */
-  .polaroid--tall   { /* default 1×1 on mobile */ }
-  .polaroid--wide   { /* unused — kept for future use */ }
-  .polaroid--square { /* default 1×1 */ }
+  .polaroid--tall {
+    /* default 1×1 on mobile */
+  }
+  .polaroid--wide {
+    /* unused — kept for future use */
+  }
+  .polaroid--square {
+    /* default 1×1 */
+  }
 
   /* Photo placeholder */
   .photo-placeholder {
@@ -234,9 +309,9 @@ const photos = [
     inset: 0;
     background: linear-gradient(
       90deg,
-      rgba(255,255,255,0) 0%,
-      rgba(255,255,255,0.4) 50%,
-      rgba(255,255,255,0) 100%
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
     );
     background-size: 400px 100%;
     animation: shimmer 2.4s ease-in-out infinite;
@@ -361,8 +436,12 @@ const photos = [
       grid-auto-rows: 180px;
       gap: 20px;
     }
-    .polaroid--tall { grid-row: span 2; }
-    .polaroid--wide { grid-column: span 2; }
+    .polaroid--tall {
+      grid-row: span 2;
+    }
+    .polaroid--wide {
+      grid-column: span 2;
+    }
   }
 
   /* Small mobile — single column for max photo visibility */
