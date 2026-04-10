@@ -56,7 +56,9 @@
             ></textarea>
           </div>
 
-          <button type="submit" class="clay-btn clay-btn--green submit-btn">
+          <div id="guestbook-error" class="form-error" hidden></div>
+
+          <button type="submit" class="clay-btn clay-btn--green submit-btn" id="guestbook-submit-btn">
             ⭐ Kirim Ucapan
           </button>
         </form>
@@ -67,8 +69,29 @@
           <h3 class="success-title">Terima kasih!</h3>
           <p class="success-text">Doa dan ucapanmu sudah kami terima. Semoga Allah SWT membalas kebaikanmu. 🤲</p>
           <div class="success-stars" aria-hidden="true">⭐ ⭐ ⭐</div>
+          <button type="button" class="clay-btn clay-btn--green write-again-btn" id="guestbook-write-again">
+            ✏️ Tulis Lagi
+          </button>
         </div>
       </div>
+    </div>
+
+    <!-- Messages list -->
+    <div class="messages-section animate-on-scroll">
+      <div class="messages-header">
+        <span class="messages-header-icon">💌</span>
+        <h3 class="messages-header-title">Ucapan & Doa dari Tamu</h3>
+      </div>
+
+      <div id="guestbook-loading" class="messages-loading">
+        <span class="loading-spinner">⏳</span> Memuat ucapan...
+      </div>
+
+      <div id="guestbook-empty" class="messages-empty" hidden>
+        <p>Belum ada ucapan. Jadilah yang pertama! 🌟</p>
+      </div>
+
+      <div id="guestbook-messages" class="messages-list"></div>
     </div>
 
     <!-- Footer note -->
@@ -81,45 +104,162 @@
 </section>
 
 <script is:inline>
-  const form = document.getElementById('guestbook-form');
-  const success = document.getElementById('guestbook-success');
+  (function () {
+    var form = document.getElementById('guestbook-form');
+    var success = document.getElementById('guestbook-success');
+    var errorEl = document.getElementById('guestbook-error');
+    var submitBtn = document.getElementById('guestbook-submit-btn');
+    var writeAgainBtn = document.getElementById('guestbook-write-again');
+    var messagesContainer = document.getElementById('guestbook-messages');
+    var loadingEl = document.getElementById('guestbook-loading');
+    var emptyEl = document.getElementById('guestbook-empty');
 
-  if (form && success) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    function formatDate(dateStr) {
+      var d = new Date(dateStr);
+      return d.toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
 
-      const nameEl = document.getElementById('guest-name');
-      const msgEl  = document.getElementById('guest-message');
+    function createMessageCard(entry) {
+      var card = document.createElement('div');
+      card.className = 'message-card';
+      card.innerHTML =
+        '<div class="message-card-header">' +
+          '<span class="message-avatar">👤</span>' +
+          '<div>' +
+            '<p class="message-name">' + escapeHtml(entry.name) + '</p>' +
+            '<p class="message-date">' + formatDate(entry.created_at) + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<p class="message-text">' + escapeHtml(entry.message) + '</p>';
+      return card;
+    }
 
-      if (!nameEl || !msgEl) return;
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
 
-      const name = nameEl.value.trim();
-      const msg  = msgEl.value.trim();
+    function loadMessages() {
+      fetch('/api/guestbook')
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+          if (loadingEl) loadingEl.hidden = true;
 
-      if (!name || name.length < 2) {
-        nameEl.focus();
-        return;
-      }
-      if (!msg || msg.length < 5) {
-        msgEl.focus();
-        return;
-      }
+          if (!result.ok || !result.data || result.data.length === 0) {
+            if (emptyEl) emptyEl.hidden = false;
+            return;
+          }
 
-      form.style.opacity = '0';
-      form.style.transform = 'scale(0.95)';
-      setTimeout(function () {
-        form.hidden = true;
-        success.hidden = false;
-        success.style.opacity = '0';
-        success.style.transform = 'scale(0.8)';
-        // trigger reflow then animate in
-        void success.offsetHeight;
-        success.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        success.style.opacity = '1';
-        success.style.transform = 'scale(1)';
-      }, 300);
-    });
-  }
+          if (emptyEl) emptyEl.hidden = true;
+          if (messagesContainer) {
+            messagesContainer.innerHTML = '';
+            result.data.forEach(function (entry) {
+              messagesContainer.appendChild(createMessageCard(entry));
+            });
+          }
+        })
+        .catch(function () {
+          if (loadingEl) loadingEl.hidden = true;
+          if (emptyEl) emptyEl.hidden = false;
+        });
+    }
+
+    // Load messages on page load
+    loadMessages();
+
+    if (form && success) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (errorEl) errorEl.hidden = true;
+
+        var nameEl = document.getElementById('guest-name');
+        var msgEl = document.getElementById('guest-message');
+        if (!nameEl || !msgEl) return;
+
+        var name = nameEl.value.trim();
+        var msg = msgEl.value.trim();
+
+        if (!name || name.length < 2) { nameEl.focus(); return; }
+        if (!msg || msg.length < 5) { msgEl.focus(); return; }
+
+        // Disable button while submitting
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = '⏳ Mengirim...';
+        }
+
+        fetch('/api/guestbook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, message: msg })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (result) {
+            if (!result.ok) {
+              if (errorEl) {
+                errorEl.textContent = result.error || 'Gagal mengirim ucapan.';
+                errorEl.hidden = false;
+              }
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '⭐ Kirim Ucapan';
+              }
+              return;
+            }
+
+            // Show success
+            form.style.opacity = '0';
+            form.style.transform = 'scale(0.95)';
+            setTimeout(function () {
+              form.hidden = true;
+              success.hidden = false;
+              success.style.opacity = '0';
+              success.style.transform = 'scale(0.8)';
+              void success.offsetHeight;
+              success.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+              success.style.opacity = '1';
+              success.style.transform = 'scale(1)';
+            }, 300);
+
+            // Prepend new message to list
+            if (result.data && messagesContainer) {
+              if (emptyEl) emptyEl.hidden = true;
+              messagesContainer.prepend(createMessageCard(result.data));
+            }
+          })
+          .catch(function () {
+            if (errorEl) {
+              errorEl.textContent = 'Terjadi kesalahan. Coba lagi ya.';
+              errorEl.hidden = false;
+            }
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = '⭐ Kirim Ucapan';
+            }
+          });
+      });
+    }
+
+    // Write again button
+    if (writeAgainBtn && form && success) {
+      writeAgainBtn.addEventListener('click', function () {
+        success.hidden = true;
+        form.hidden = false;
+        form.style.opacity = '1';
+        form.style.transform = 'scale(1)';
+        form.reset();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '⭐ Kirim Ucapan';
+        }
+        if (errorEl) errorEl.hidden = true;
+      });
+    }
+  })();
 </script>
 
 <style>
@@ -315,6 +455,118 @@
     font-size: 0.85rem !important;
     font-weight: 400 !important;
     color: var(--color-muted) !important;
+  }
+
+  /* Error state */
+  .form-error {
+    background: #fff0f0;
+    border: 2px solid #ff6b6b;
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: #d63031;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Write again button */
+  .write-again-btn {
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+
+  /* Messages section */
+  .messages-section {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .messages-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .messages-header-icon {
+    font-size: 1.6rem;
+  }
+
+  .messages-header-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-dark);
+  }
+
+  .messages-loading,
+  .messages-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--color-muted);
+    font-size: 1rem;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .messages-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .messages-list::-webkit-scrollbar-thumb {
+    background: rgba(2, 62, 138, 0.2);
+    border-radius: 3px;
+  }
+
+  .message-card {
+    background: linear-gradient(145deg, #ffffff, #f5f0ff);
+    border: 2px solid rgba(0, 119, 182, 0.15);
+    border-radius: 18px;
+    padding: 16px 18px;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .message-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .message-avatar {
+    font-size: 1.4rem;
+  }
+
+  .message-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-purple);
+  }
+
+  .message-date {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  .message-text {
+    font-size: 0.95rem;
+    color: var(--color-dark);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   @media (max-width: 480px) {
