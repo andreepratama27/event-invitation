@@ -773,8 +773,7 @@ const waTemplate = getWhatsAppMessageTemplate();
 
 <script define:vars={{ waTemplate, siteUrl: site.url }}>
   // ── State ────────────────────────────────────────────
-  const STORAGE_KEY = 'emir_guests';
-  let guests = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let guests = [];
   let activeFilter = 'all';
   let searchQuery = '';
 
@@ -800,15 +799,112 @@ const waTemplate = getWhatsAppMessageTemplate();
   const btnExport = document.getElementById('btn-export');
   const btnClearAll = document.getElementById('btn-clear-all');
 
+  // ── API Helpers ──────────────────────────────────────
+  async function fetchGuests() {
+    try {
+      const res = await fetch('/api/invitation');
+      const json = await res.json();
+      if (json.ok) {
+        guests = json.data;
+        render();
+      } else {
+        toast('❌ Gagal memuat data');
+      }
+    } catch (err) {
+      toast('❌ Gagal memuat data');
+    }
+  }
+
+  async function addGuest(name, phone) {
+    try {
+      const res = await fetch('/api/invitation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guest_name: name, phone_number: phone }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        guests.unshift(json.data);
+        render();
+        return true;
+      } else {
+        toast('❌ ' + json.error);
+        return false;
+      }
+    } catch (err) {
+      toast('❌ Gagal menambah tamu');
+      return false;
+    }
+  }
+
+  async function updateGuest(id, updates) {
+    try {
+      const res = await fetch('/api/invitation', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        const idx = guests.findIndex((g) => String(g.id) === String(id));
+        if (idx !== -1) guests[idx] = json.data;
+        render();
+        return true;
+      } else {
+        toast('❌ ' + json.error);
+        return false;
+      }
+    } catch (err) {
+      toast('❌ Gagal memperbarui tamu');
+      return false;
+    }
+  }
+
+  async function deleteGuestAPI(id) {
+    try {
+      const res = await fetch('/api/invitation', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        guests = guests.filter((g) => String(g.id) !== String(id));
+        render();
+        return true;
+      } else {
+        toast('❌ ' + json.error);
+        return false;
+      }
+    } catch (err) {
+      toast('❌ Gagal menghapus tamu');
+      return false;
+    }
+  }
+
+  async function deleteAllGuests() {
+    try {
+      const res = await fetch('/api/invitation', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deleteAll: true }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        guests = [];
+        render();
+        return true;
+      } else {
+        toast('❌ ' + json.error);
+        return false;
+      }
+    } catch (err) {
+      toast('❌ Gagal menghapus semua tamu');
+      return false;
+    }
+  }
+
   // ── Helpers ──────────────────────────────────────────
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
-  }
-
-  function genId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  }
-
   function formatPhone(raw) {
     let p = raw.replace(/\D/g, '');
     if (p.startsWith('0')) p = '62' + p.slice(1);
@@ -842,12 +938,12 @@ const waTemplate = getWhatsAppMessageTemplate();
     return guests.filter((g) => {
       const matchSearch =
         !searchQuery ||
-        g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.phone.includes(searchQuery);
+        g.guest_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.phone_number.includes(searchQuery);
       const matchFilter =
         activeFilter === 'all' ||
-        (activeFilter === 'sent' && g.sent) ||
-        (activeFilter === 'pending' && !g.sent);
+        (activeFilter === 'sent' && g.is_sent) ||
+        (activeFilter === 'pending' && !g.is_sent);
       return matchSearch && matchFilter;
     });
   }
@@ -855,8 +951,8 @@ const waTemplate = getWhatsAppMessageTemplate();
   function render() {
     // Stats
     document.getElementById('stat-total').textContent = guests.length;
-    document.getElementById('stat-sent').textContent = guests.filter((g) => g.sent).length;
-    document.getElementById('stat-pending').textContent = guests.filter((g) => !g.sent).length;
+    document.getElementById('stat-sent').textContent = guests.filter((g) => g.is_sent).length;
+    document.getElementById('stat-pending').textContent = guests.filter((g) => !g.is_sent).length;
 
     const filtered = getFiltered();
 
@@ -875,22 +971,22 @@ const waTemplate = getWhatsAppMessageTemplate();
 
     listEl.innerHTML = filtered
       .map((g, i) => {
-        const av = getAvatar(g.name);
-        const statusClass = g.sent ? 'sent' : 'pending';
-        const statusText = g.sent ? '✅ Terkirim' : '⏳ Belum';
+        const av = getAvatar(g.guest_name);
+        const statusClass = g.is_sent ? 'sent' : 'pending';
+        const statusText = g.is_sent ? '✅ Terkirim' : '⏳ Belum';
         return `
         <div class="guest-card" role="listitem" style="animation-delay: ${i * 0.03}s">
           <div class="guest-avatar" style="background: ${av.bg}">${av.initial}</div>
           <div class="guest-top-row">
-            <div class="guest-name">${escapeHtml(g.name)}</div>
+            <div class="guest-name">${escapeHtml(g.guest_name)}</div>
             <span class="guest-status ${statusClass}">${statusText}</span>
           </div>
           <div class="guest-bottom-row">
-            <div class="guest-phone">${g.phone}</div>
+            <div class="guest-phone">${g.phone_number}</div>
             <div class="guest-actions">
-              <button class="action-btn wa-btn" data-id="${g.id}" title="Kirim via WhatsApp" aria-label="Kirim undangan ke ${escapeHtml(g.name)} via WhatsApp">💬</button>
-              <button class="action-btn edit-btn" data-id="${g.id}" title="Edit" aria-label="Edit ${escapeHtml(g.name)}">✏️</button>
-              <button class="action-btn delete-btn" data-id="${g.id}" title="Hapus" aria-label="Hapus ${escapeHtml(g.name)}">✕</button>
+              <button class="action-btn wa-btn" data-id="${g.id}" title="Kirim via WhatsApp" aria-label="Kirim undangan ke ${escapeHtml(g.guest_name)} via WhatsApp">💬</button>
+              <button class="action-btn edit-btn" data-id="${g.id}" title="Edit" aria-label="Edit ${escapeHtml(g.guest_name)}">✏️</button>
+              <button class="action-btn delete-btn" data-id="${g.id}" title="Hapus" aria-label="Hapus ${escapeHtml(g.guest_name)}">✕</button>
             </div>
           </div>
         </div>`;
@@ -905,18 +1001,18 @@ const waTemplate = getWhatsAppMessageTemplate();
   }
 
   // ── Add Guest ────────────────────────────────────────
-  addForm.addEventListener('submit', (e) => {
+  addForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
     const phone = phoneInput.value.trim();
     if (!name || !phone) return;
 
-    guests.push({ id: genId(), name, phone: formatPhone(phone), sent: false });
-    save();
-    render();
-    addForm.reset();
-    nameInput.focus();
-    toast('✅ Tamu berhasil ditambahkan!');
+    const success = await addGuest(name, formatPhone(phone));
+    if (success) {
+      addForm.reset();
+      nameInput.focus();
+      toast('✅ Tamu berhasil ditambahkan!');
+    }
   });
 
   // ── Guest Actions (delegation) ──────────────────────
@@ -924,7 +1020,7 @@ const waTemplate = getWhatsAppMessageTemplate();
     const btn = e.target.closest('.action-btn');
     if (!btn) return;
     const id = btn.dataset.id;
-    const guest = guests.find((g) => g.id === id);
+    const guest = guests.find((g) => String(g.id) === String(id));
     if (!guest) return;
 
     if (btn.classList.contains('wa-btn')) {
@@ -937,25 +1033,23 @@ const waTemplate = getWhatsAppMessageTemplate();
   });
 
   // ── WhatsApp Send ───────────────────────────────────
-  function sendWhatsApp(guest) {
-    const guestUri = encodeURIComponent(guest.name);
+  async function sendWhatsApp(guest) {
+    const guestUri = encodeURIComponent(guest.guest_name);
     const msg = waTemplate
-      .split('{GUEST}').join(guest.name)
+      .split('{GUEST}').join(guest.guest_name)
       .split('{GUEST_URI}').join(guestUri);
-    const url = `https://wa.me/${guest.phone}?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/${guest.phone_number}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 
-    guest.sent = true;
-    save();
-    render();
+    await updateGuest(guest.id, { is_sent: true });
     toast('📨 Membuka WhatsApp...');
   }
 
   // ── Edit ─────────────────────────────────────────────
   function openEditModal(guest) {
     editIdInput.value = guest.id;
-    editNameInput.value = guest.name;
-    editPhoneInput.value = guest.phone;
+    editNameInput.value = guest.guest_name;
+    editPhoneInput.value = guest.phone_number;
     modalEl.classList.add('open');
     editNameInput.focus();
   }
@@ -969,18 +1063,17 @@ const waTemplate = getWhatsAppMessageTemplate();
     if (e.target === modalEl) closeModal();
   });
 
-  editForm.addEventListener('submit', (e) => {
+  editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = editIdInput.value;
-    const guest = guests.find((g) => g.id === id);
-    if (!guest) return;
+    const guest_name = editNameInput.value.trim();
+    const phone_number = formatPhone(editPhoneInput.value.trim());
 
-    guest.name = editNameInput.value.trim();
-    guest.phone = formatPhone(editPhoneInput.value.trim());
-    save();
-    render();
-    closeModal();
-    toast('✅ Tamu berhasil diperbarui!');
+    const success = await updateGuest(id, { guest_name, phone_number });
+    if (success) {
+      closeModal();
+      toast('✅ Tamu berhasil diperbarui!');
+    }
   });
 
   // ── Delete Confirm Modal ─────────────────────────────
@@ -1010,16 +1103,14 @@ const waTemplate = getWhatsAppMessageTemplate();
 
   // ── Delete ───────────────────────────────────────────
   function deleteGuest(id) {
-    const guest = guests.find((g) => g.id === id);
+    const guest = guests.find((g) => String(g.id) === String(id));
     if (!guest) return;
     openDeleteModal(
       'Hapus Tamu?',
-      `"${guest.name}" akan dihapus dari daftar undangan.`,
-      () => {
-        guests = guests.filter((g) => g.id !== id);
-        save();
-        render();
-        toast('🗑️ Tamu dihapus');
+      `"${guest.guest_name}" akan dihapus dari daftar undangan.`,
+      async () => {
+        const success = await deleteGuestAPI(id);
+        if (success) toast('🗑️ Tamu dihapus');
       }
     );
   }
@@ -1044,7 +1135,7 @@ const waTemplate = getWhatsAppMessageTemplate();
   btnExport.addEventListener('click', () => {
     if (guests.length === 0) return toast('📭 Tidak ada data untuk diekspor');
     const csv = ['Nama,WhatsApp,Status']
-      .concat(guests.map((g) => `"${g.name}","${g.phone}","${g.sent ? 'Terkirim' : 'Belum'}"`))
+      .concat(guests.map((g) => `"${g.guest_name}","${g.phone_number}","${g.is_sent ? 'Terkirim' : 'Belum'}"`))
       .join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
@@ -1061,15 +1152,13 @@ const waTemplate = getWhatsAppMessageTemplate();
     openDeleteModal(
       'Hapus Semua Tamu?',
       `${guests.length} tamu akan dihapus. Aksi ini tidak dapat dibatalkan.`,
-      () => {
-        guests = [];
-        save();
-        render();
-        toast('🗑️ Semua tamu dihapus');
+      async () => {
+        const success = await deleteAllGuests();
+        if (success) toast('🗑️ Semua tamu dihapus');
       }
     );
   });
 
   // ── Init ─────────────────────────────────────────────
-  render();
+  fetchGuests();
 </script>
