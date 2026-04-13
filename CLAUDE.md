@@ -4,5 +4,4 @@ This project is a landing page invitation, mobile first with good A11y build for
 
 ## Font Style
 
-* **Heading Font:** **Fredoka** (Playful, rounded terminals, high legibility for display sizes)
-* **Body Font:** **Lexend** (Specifically engineered for reading proficiency and reducing visual stress)
+- **Heading Font:** **Fredoka** (Playful, rounded terminals, high legibility for display sizes)

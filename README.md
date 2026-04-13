@@ -8,19 +8,19 @@ A mobile-first, accessible landing page invitation for a child's celebration eve
 
 ## ✨ Features
 
-| Feature | Description |
-| :--- | :--- |
-| **Opening Gate** | Full-screen overlay with guest name personalization via `?to=` query param |
-| **Hero Section** | Event headline with countdown timer and XP progress bar |
-| **Invitation Section** | Event date, time, venue, and dress code details |
-| **Name Meanings** | Baby name meanings display |
-| **Gallery** | Photo gallery section |
-| **Directions** | Venue map with embedded Google Maps and navigation link |
-| **Guestbook** | Guest message form with animated success state |
-| **Background Music** | Auto-plays on gate open (respects browser autoplay policies) |
-| **Scroll Reveal** | Intersection Observer–powered entrance animations |
-| **A11y** | `prefers-reduced-motion` support, ARIA labels, semantic HTML |
-| **SEO / OG Tags** | Full Open Graph + Twitter Card meta for rich link previews on WhatsApp, iMessage, etc. |
+| Feature                | Description                                                                            |
+| :--------------------- | :------------------------------------------------------------------------------------- |
+| **Opening Gate**       | Full-screen overlay with guest name personalization via `?to=` query param             |
+| **Hero Section**       | Event headline with countdown timer and XP progress bar                                |
+| **Invitation Section** | Event date, time, venue, and dress code details                                        |
+| **Name Meanings**      | Baby name meanings display                                                             |
+| **Gallery**            | Photo gallery section                                                                  |
+| **Directions**         | Venue map with embedded Google Maps and navigation link                                |
+| **Guestbook**          | Guest message form with animated success state                                         |
+| **Background Music**   | Auto-plays on gate open (respects browser autoplay policies)                           |
+| **Scroll Reveal**      | Intersection Observer–powered entrance animations                                      |
+| **A11y**               | `prefers-reduced-motion` support, ARIA labels, semantic HTML                           |
+| **SEO / OG Tags**      | Full Open Graph + Twitter Card meta for rich link previews on WhatsApp, iMessage, etc. |
 
 ---
 
@@ -128,11 +128,13 @@ Guest names are passed via the `?to=` query parameter in the invitation URL. Whe
 ### How it works
 
 1. Share a personalized link to each guest:
+
    ```
    https://emir-invitation.vercel.app/?to=Budi%20Santoso
    ```
 
 2. The `OpeningGate` component reads the `to` param and displays it:
+
    ```
    Kepada Yth.
    Budi Santoso
@@ -144,10 +146,10 @@ Guest names are passed via the `?to=` query parameter in the invitation URL. Whe
 
 Simply URL-encode the guest name and append it:
 
-| Guest Name | Invitation URL |
-| :--- | :--- |
-| Budi Santoso | `https://your-domain.com/?to=Budi%20Santoso` |
-| Ibu Sari | `https://your-domain.com/?to=Ibu%20Sari` |
+| Guest Name            | Invitation URL                                            |
+| :-------------------- | :-------------------------------------------------------- |
+| Budi Santoso          | `https://your-domain.com/?to=Budi%20Santoso`              |
+| Ibu Sari              | `https://your-domain.com/?to=Ibu%20Sari`                  |
 | Keluarga Besar Pak RT | `https://your-domain.com/?to=Keluarga%20Besar%20Pak%20RT` |
 
 > **Note:** There is no server-side authentication or login — the `?to=` param is purely for display personalisation on the opening gate.
@@ -157,7 +159,6 @@ Simply URL-encode the guest name and append it:
 ## 🎨 Design System
 
 - **Heading Font:** [Fredoka](https://fonts.google.com/specimen/Fredoka) — Playful, rounded terminals
-- **Body Font:** [Lexend](https://fonts.google.com/specimen/Lexend) — Engineered for reading proficiency
 - **UI Style:** Clay UI — 3D inflated buttons and cards with soft shadows
 - **Color Palette:** Ocean-inspired (teal, cyan, amber, coral, navy)
 
@@ -192,12 +193,12 @@ Simply URL-encode the guest name and append it:
 
 ## 🧞 Commands
 
-| Command | Action |
-| :--- | :--- |
-| `npm install` | Install dependencies |
-| `npm run dev` | Start local dev server at `localhost:4321` |
-| `npm run build` | Build production site to `./dist/` |
-| `npm run preview` | Preview production build locally |
+| Command           | Action                                     |
+| :---------------- | :----------------------------------------- |
+| `npm install`     | Install dependencies                       |
+| `npm run dev`     | Start local dev server at `localhost:4321` |
+| `npm run build`   | Build production site to `./dist/`         |
+| `npm run preview` | Preview production build locally           |
 
 ---
 
