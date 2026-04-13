@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { event } from '../config/event';
+import { getWhatsAppMessageTemplate } from '../config/message-template';
 
 export const prerender = false;
 
@@ -10,22 +11,8 @@ if (!session?.value) {
   return Astro.redirect('/login');
 }
 
-const { baby, type: eventType, dateLabel, timeLabel, venue, site } = event;
-
-const waTemplate = `Assalamu'alaikum 🌙
-
-Kepada Bapak/Ibu *{GUEST}*,
-
-Kami mengundang untuk hadir dalam acara ${eventType} putra kami:
-✨ *${baby.fullName}* ✨
-
-📅 ${dateLabel}
-🕙 ${timeLabel}
-📍 ${venue.name}, ${venue.address.split(',').pop()?.trim() ?? venue.address}
-
-Buka undangan: ${site.url}?to={GUEST_URI}
-
-Terima kasih 🤲`;
+const { baby, type: eventType, site } = event;
+const waTemplate = getWhatsAppMessageTemplate();
 ---
 
 <html lang={site.lang}>
@@ -953,8 +940,8 @@ Terima kasih 🤲`;
   function sendWhatsApp(guest) {
     const guestUri = encodeURIComponent(guest.name);
     const msg = waTemplate
-      .replace('{GUEST}', guest.name)
-      .replace('{GUEST_URI}', guestUri);
+      .split('{GUEST}').join(guest.name)
+      .split('{GUEST_URI}').join(guestUri);
     const url = `https://wa.me/${guest.phone}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 

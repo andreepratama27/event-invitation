@@ -54,6 +54,17 @@ const { baby, type: eventType } = event;
           <span class="menu-arrow" aria-hidden="true">→</span>
         </a>
 
+        <a href="/manage-template" class="menu-card clay-white animate-on-scroll" aria-label="Template WhatsApp">
+          <div class="menu-icon-wrap clay-blue">
+            <span class="menu-icon">📝</span>
+          </div>
+          <div class="menu-content">
+            <h2 class="menu-title">Template WhatsApp</h2>
+            <p class="menu-desc">Atur template pesan undangan yang dipakai saat kirim dari Kelola Undangan.</p>
+          </div>
+          <span class="menu-arrow" aria-hidden="true">→</span>
+        </a>
+
         <a href="/manage-event" class="menu-card clay-white animate-on-scroll" aria-label="Pengaturan Acara">
           <div class="menu-icon-wrap clay-yellow">
             <span class="menu-icon">⚙️</span>
@@ -259,7 +270,15 @@ const { baby, type: eventType } = event;
       inset 0 3px 8px rgba(255, 255, 255, 0.5);
   }
 
-  .menu-card:nth-child(2) .menu-icon-wrap {
+  .menu-icon-wrap.clay-blue {
+    box-shadow:
+      0 5px 0 var(--color-blue-dark),
+      0 8px 14px rgba(0, 0, 0, 0.14),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.08),
+      inset 0 3px 8px rgba(255, 255, 255, 0.5);
+  }
+
+  .menu-icon-wrap.clay-yellow {
     box-shadow:
       0 5px 0 var(--color-yellow-dark),
       0 8px 14px rgba(0, 0, 0, 0.14),

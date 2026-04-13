@@ -1,0 +1,231 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+import { getDefaultMessageTemplate, getWhatsAppMessageTemplate } from '../config/message-template';
+
+export const prerender = false;
+
+const session = Astro.cookies.get('manage_session');
+if (!session?.value) {
+  return Astro.redirect('/login');
+}
+
+const currentTemplate = getWhatsAppMessageTemplate();
+const defaultTemplate = getDefaultMessageTemplate();
+---
+
+<html lang={event.site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kelola Template Pesan · {event.baby.fullName}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="template-page">
+      <header class="page-header">
+        <a href="/admin" class="back-link">← Dashboard</a>
+        <h1 class="page-title">📝 Template WhatsApp</h1>
+        <p class="page-subtitle">Template ini dipakai saat kirim pesan dari halaman Kelola Undangan.</p>
+      </header>
+
+      <main class="editor-card clay-white">
+        <div class="token-info" role="note" aria-label="Placeholder yang tersedia">
+          <span><strong>{'{GUEST}'}</strong> = nama tamu</span>
+          <span><strong>{'{GUEST_URI}'}</strong> = nama tamu untuk query URL</span>
+        </div>
+
+        <label for="template-input" class="input-label">Isi Template</label>
+        <textarea id="template-input" class="template-input" rows="14">{currentTemplate}</textarea>
+
+        <div class="actions">
+          <button id="btn-default" type="button" class="clay-btn clay-btn--yellow">↺ Pakai Default</button>
+          <button id="btn-save" type="button" class="clay-btn clay-btn--green">💾 Simpan Template</button>
+        </div>
+
+        <div id="save-status" class="save-status" style="display:none"></div>
+
+        <details class="preview-box">
+          <summary>Preview default saat ini</summary>
+          <pre>{defaultTemplate}</pre>
+        </details>
+      </main>
+    </div>
+  </body>
+</html>
+
+<script define:vars={{ defaultTemplate }}>
+  const input = document.getElementById('template-input');
+  const saveBtn = document.getElementById('btn-save');
+  const defaultBtn = document.getElementById('btn-default');
+  const statusEl = document.getElementById('save-status');
+
+  function showStatus(message, type) {
+    statusEl.textContent = message;
+    statusEl.className = `save-status save-status--${type}`;
+    statusEl.style.display = 'block';
+    setTimeout(() => {
+      statusEl.style.display = 'none';
+    }, 3500);
+  }
+
+  defaultBtn?.addEventListener('click', () => {
+    input.value = defaultTemplate;
+    showStatus('ℹ️ Template dikembalikan ke default. Jangan lupa simpan.', 'info');
+  });
+
+  saveBtn?.addEventListener('click', async () => {
+    const template = input.value;
+    const original = saveBtn.textContent;
+    saveBtn.textContent = '⏳ Menyimpan...';
+    saveBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/save-message-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template }),
+      });
+      const result = await res.json();
+
+      if (result.ok) {
+        showStatus('✅ Template tersimpan! Restart server dev bila perubahan belum terlihat.', 'success');
+      } else {
+        showStatus(`❌ Gagal: ${result.error}`, 'error');
+      }
+    } catch (err) {
+      showStatus(`❌ Kesalahan jaringan: ${err instanceof Error ? err.message : 'Tidak diketahui'}`, 'error');
+    } finally {
+      saveBtn.textContent = original;
+      saveBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .template-page {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 0.65rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-green);
+  }
+
+  .page-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    color: var(--color-dark);
+  }
+
+  .page-subtitle {
+    margin-top: 0.2rem;
+    font-size: 0.92rem;
+    color: var(--color-muted);
+  }
+
+  .editor-card {
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+  }
+
+  .token-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    margin-bottom: 0.8rem;
+  }
+
+  .input-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-green);
+  }
+
+  .template-input {
+    width: 100%;
+    min-height: 280px;
+    resize: vertical;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba(0, 150, 199, 0.2);
+    padding: 0.85rem;
+    font-family: var(--font-main);
+    line-height: 1.5;
+    color: var(--color-dark);
+    background: rgba(255, 255, 255, 0.85);
+    outline: none;
+  }
+
+  .template-input:focus {
+    border-color: var(--color-green);
+    box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.15);
+  }
+
+  .actions {
+    margin-top: 0.9rem;
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+
+  .save-status {
+    margin-top: 0.9rem;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .save-status--success {
+    background: rgba(0, 200, 83, 0.12);
+    color: #00a854;
+  }
+
+  .save-status--error {
+    background: rgba(255, 59, 48, 0.12);
+    color: #d32f2f;
+  }
+
+  .save-status--info {
+    background: rgba(251, 191, 36, 0.14);
+    color: #8a5f00;
+  }
+
+  .preview-box {
+    margin-top: 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(232, 244, 253, 0.6);
+    padding: 0.7rem 0.8rem;
+  }
+
+  .preview-box summary {
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-muted);
+  }
+
+  .preview-box pre {
+    margin-top: 0.6rem;
+    white-space: pre-wrap;
+    font-family: var(--font-main);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--color-dark);
+  }
+</style>
