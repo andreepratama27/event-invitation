@@ -32,7 +32,7 @@ export const event = {
   timezone: '+07:00',
   /** Full ISO datetime string for countdown / XP bar scripts */
   get datetimeISO() {
-    return `${this.dateISO}T00:00:00${this.timezone}`;
+    return `${this.dateISO}T11:00:00${this.timezone}`;
   },
   /** Human-readable date label */
   dateLabel: 'Sabtu, 18 April 2026',
