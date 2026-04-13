@@ -9,7 +9,7 @@ const { baby, type: eventType } = event;
 // Already logged in? Redirect to manage page
 const session = Astro.cookies.get('manage_session');
 if (session?.value) {
-  return Astro.redirect('/manage-invitation');
+  return Astro.redirect('/admin');
 }
 
 const hasError = Astro.url.searchParams.has('error');

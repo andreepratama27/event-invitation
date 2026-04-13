@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       maxAge: SESSION_MAX_AGE,
     });
 
-    return redirect('/manage-invitation', 302);
+    return redirect('/admin', 302);
   }
 
   // Wrong credentials — redirect back with error

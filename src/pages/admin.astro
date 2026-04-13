@@ -1,0 +1,356 @@
+---
+import '../styles/global.css';
+import { event } from '../config/event';
+
+export const prerender = false;
+
+// Auth guard — redirect to login if no session cookie
+const session = Astro.cookies.get('manage_session');
+if (!session?.value) {
+  return Astro.redirect('/login');
+}
+
+const { baby, type: eventType } = event;
+---
+
+<html lang={event.site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard · {baby.fullName}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="admin-page">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="admin-header-inner">
+          <div class="header-top-row">
+            <a href="/" class="back-link" aria-label="Kembali ke undangan">← Undangan</a>
+            <form method="POST" action="/api/logout" class="logout-form">
+              <button type="submit" class="logout-btn" aria-label="Logout">🚪 Keluar</button>
+            </form>
+          </div>
+          <div class="admin-badge">
+            <span class="badge-dot"></span>
+            ADMIN · DASHBOARD
+          </div>
+          <h1 class="admin-title">🎛️ Admin Dashboard</h1>
+          <p class="admin-subtitle">{eventType} {baby.fullName}</p>
+        </div>
+      </header>
+
+      <!-- Menu Cards -->
+      <div class="admin-menu">
+        <a href="/manage-invitation" class="menu-card clay-white animate-on-scroll" aria-label="Kelola Undangan">
+          <div class="menu-icon-wrap clay-green">
+            <span class="menu-icon">📋</span>
+          </div>
+          <div class="menu-content">
+            <h2 class="menu-title">Kelola Undangan</h2>
+            <p class="menu-desc">Tambah tamu, kirim undangan via WhatsApp, dan kelola daftar tamu.</p>
+          </div>
+          <span class="menu-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a href="/manage-event" class="menu-card clay-white animate-on-scroll" aria-label="Pengaturan Acara">
+          <div class="menu-icon-wrap clay-yellow">
+            <span class="menu-icon">⚙️</span>
+          </div>
+          <div class="menu-content">
+            <h2 class="menu-title">Pengaturan Acara</h2>
+            <p class="menu-desc">Edit data anak, orang tua, detail acara, lokasi, dan konfigurasi situs.</p>
+          </div>
+          <span class="menu-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="quick-info animate-on-scroll">
+        <div class="info-card clay-white">
+          <span class="info-icon">📅</span>
+          <div class="info-text">
+            <span class="info-label">Tanggal Acara</span>
+            <span class="info-value">{event.dateLabel}</span>
+          </div>
+        </div>
+        <div class="info-card clay-white">
+          <span class="info-icon">🕙</span>
+          <div class="info-text">
+            <span class="info-label">Waktu</span>
+            <span class="info-value">{event.timeLabel}</span>
+          </div>
+        </div>
+        <div class="info-card clay-white">
+          <span class="info-icon">📍</span>
+          <div class="info-text">
+            <span class="info-label">Lokasi</span>
+            <span class="info-value">{event.venue.name}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+</script>
+
+<style>
+  /* ── Page ───────────────────────────── */
+  .admin-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 1rem 4rem;
+    min-height: 100dvh;
+  }
+
+  /* ── Header ────────────────────────── */
+  .admin-header {
+    padding: 1.25rem 0 2rem;
+  }
+
+  .admin-header-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-green);
+    transition: transform 0.15s ease;
+  }
+
+  .back-link:hover {
+    transform: translateX(-3px);
+  }
+
+  .logout-form {
+    margin: 0;
+  }
+
+  .logout-btn {
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .logout-btn:hover {
+    background: rgba(251, 133, 0, 0.15);
+    color: var(--color-coral);
+  }
+
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(0, 150, 199, 0.2);
+    border-radius: var(--radius-pill);
+    padding: 5px 16px;
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--color-green);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  .admin-title {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+  }
+
+  .admin-subtitle {
+    font-size: 1rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* ── Menu Cards ────────────────────── */
+  .admin-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .menu-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem;
+    border-radius: var(--radius-lg);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+  }
+
+  .menu-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .menu-card:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 4px 0 #c4dae8,
+      0 6px 12px rgba(0, 0, 0, 0.1),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.06),
+      inset 0 3px 8px rgba(255, 255, 255, 0.9);
+  }
+
+  .menu-icon-wrap {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 5px 0 var(--color-green-dark),
+      0 8px 14px rgba(0, 0, 0, 0.14),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.08),
+      inset 0 3px 8px rgba(255, 255, 255, 0.5);
+  }
+
+  .menu-card:nth-child(2) .menu-icon-wrap {
+    box-shadow:
+      0 5px 0 var(--color-yellow-dark),
+      0 8px 14px rgba(0, 0, 0, 0.14),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.08),
+      inset 0 3px 8px rgba(255, 255, 255, 0.5);
+  }
+
+  .menu-icon {
+    font-size: 1.6rem;
+  }
+
+  .menu-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .menu-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: 0.2rem;
+  }
+
+  .menu-desc {
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .menu-arrow {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-green);
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  .menu-card:hover .menu-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ── Quick Info ────────────────────── */
+  .quick-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .info-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .info-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+
+  /* ── Responsive ────────────────────── */
+  @media (min-width: 480px) {
+    .quick-info {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .quick-info .info-card:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
