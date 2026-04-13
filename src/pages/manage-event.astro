@@ -1,259 +1,401 @@
 ---
-import '../styles/global.css';
-import { event } from '../config/event';
+import "../styles/global.css";
+import { event } from "../config/event";
 
 export const prerender = false;
 
 // Auth guard — redirect to login if no session cookie
-const session = Astro.cookies.get('manage_session');
+const session = Astro.cookies.get("manage_session");
 if (!session?.value) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 ---
 
-<html lang="id">
+<html lang={event.site.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pengaturan Acara · {event.site.ogTitle}</title>
+    <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <div class="setup-page">
-      <!-- Header -->
-      <header class="setup-header">
-        <div class="setup-header-inner">
-          <div class="level-tag">
-            <span class="level-dot"></span>
-            PENGATURAN · KONFIGURASI ACARA
-          </div>
-          <h1 class="setup-title">⚙️ Pengaturan Acara</h1>
-          <p class="setup-subtitle">Edit konfigurasi undangan di sini</p>
+    <div class="event-page">
+      <header class="page-header">
+        <div class="header-top-row">
+          <a href="/admin" class="back-link" aria-label="Kembali ke dashboard"
+            >← Dashboard</a
+          >
+          <form method="POST" action="/api/logout" class="logout-form">
+            <button type="submit" class="logout-btn" aria-label="Logout"
+              >🚪 Keluar</button
+            >
+          </form>
+        </div>
+
+        <div class="header-content">
+          <span class="header-badge">⚙️ PENGATURAN ACARA</span>
+          <h1 class="header-title">Konfigurasi Undangan</h1>
+          <p class="header-subtitle">
+            Perbarui data acara, lokasi, dan profil website undangan.
+          </p>
         </div>
       </header>
 
-      <!-- Form -->
-      <div class="section-wrapper">
-        <div class="section-inner">
-          <form id="event-form" class="setup-form">
-
-            <!-- Baby Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">👶</span>
-                Data Anak
-              </legend>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="baby-firstName">Nama Depan</label>
-                  <input type="text" id="baby-firstName" name="baby.firstName" value={event.baby.firstName} required />
-                </div>
-                <div class="form-field">
-                  <label for="baby-middleName">Nama Tengah</label>
-                  <input type="text" id="baby-middleName" name="baby.middleName" value={event.baby.middleName} />
-                </div>
-                <div class="form-field">
-                  <label for="baby-lastName">Nama Belakang</label>
-                  <input type="text" id="baby-lastName" name="baby.lastName" value={event.baby.lastName} />
-                </div>
-                <div class="form-field">
-                  <label for="baby-birthDate">Tanggal Lahir</label>
-                  <input type="date" id="baby-birthDate" name="baby.birthDate" value={event.baby.birthDate} required />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Parents Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">👨‍👩‍👦</span>
-                Data Orang Tua
-              </legend>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="parents-father">Nama Ayah</label>
-                  <input type="text" id="parents-father" name="parents.father" value={event.parents.father} required />
-                </div>
-                <div class="form-field">
-                  <label for="parents-mother">Nama Ibu</label>
-                  <input type="text" id="parents-mother" name="parents.mother" value={event.parents.mother} required />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Event Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">🎉</span>
-                Detail Acara
-              </legend>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="event-type">Jenis Acara</label>
-                  <select id="event-type" name="type">
-                    <option value="Aqiqah" selected={event.type === 'Aqiqah'}>Aqiqah</option>
-                    <option value="Ulang Tahun" selected={event.type === 'Ulang Tahun'}>Ulang Tahun</option>
-                    <option value="Syukuran" selected={event.type === 'Syukuran'}>Syukuran</option>
-                  </select>
-                </div>
-                <div class="form-field">
-                  <label for="event-dateISO">Tanggal Acara</label>
-                  <input type="date" id="event-dateISO" name="dateISO" value={event.dateISO} required />
-                </div>
-                <div class="form-field">
-                  <label for="event-timeLabel">Waktu</label>
-                  <input type="text" id="event-timeLabel" name="timeLabel" value={event.timeLabel} placeholder="10.00 WIB – Selesai" required />
-                </div>
-                <div class="form-field">
-                  <label for="event-timezone">Zona Waktu</label>
-                  <input type="text" id="event-timezone" name="timezone" value={event.timezone} placeholder="+07:00" required />
-                </div>
-                <div class="form-field form-field--full">
-                  <label for="event-dateLabel">Label Tanggal</label>
-                  <input type="text" id="event-dateLabel" name="dateLabel" value={event.dateLabel} placeholder="Sabtu, 18 April 2026" required />
-                </div>
-                <div class="form-field form-field--full">
-                  <label for="event-dresscode">Kode Berbusana</label>
-                  <input type="text" id="event-dresscode" name="dresscode" value={event.dresscode} placeholder="Busana Muslim / Sopan (kosongkan untuk sembunyikan)" />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Venue Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">📍</span>
-                Lokasi
-              </legend>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="venue-name">Nama Tempat</label>
-                  <input type="text" id="venue-name" name="venue.name" value={event.venue.name} required />
-                </div>
-                <div class="form-field">
-                  <label for="venue-address">Alamat</label>
-                  <input type="text" id="venue-address" name="venue.address" value={event.venue.address} required />
-                </div>
-                <div class="form-field form-field--full">
-                  <label for="venue-mapsUrl">Tautan Google Maps</label>
-                  <input type="url" id="venue-mapsUrl" name="venue.mapsUrl" value={event.venue.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
-                </div>
-                <div class="form-field form-field--full">
-                  <label for="venue-embedUrl">Tautan Embed Google Maps</label>
-                  <input type="url" id="venue-embedUrl" name="venue.embedUrl" value={event.venue.embedUrl} placeholder="https://maps.google.com/maps?q=..." />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Contact / RSVP Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">📱</span>
-                Kontak / RSVP
-              </legend>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="contact-whatsapp">No. WhatsApp</label>
-                  <input type="tel" id="contact-whatsapp" name="contact.whatsapp" value={event.contact.whatsapp} placeholder="628123456789" />
-                </div>
-                <div class="form-field">
-                  <label for="contact-name">Nama Kontak</label>
-                  <input type="text" id="contact-name" name="contact.name" value={event.contact.name} />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Site / SEO Section -->
-            <fieldset class="form-section clay-white animate-on-scroll">
-              <legend class="form-legend">
-                <span class="legend-icon">🌐</span>
-                Situs / SEO
-              </legend>
-              <div class="form-grid">
-                <div class="form-field form-field--full">
-                  <label for="site-url">URL Situs</label>
-                  <input type="url" id="site-url" name="site.url" value={event.site.url} required />
-                </div>
-                <div class="form-field">
-                  <label for="site-ogImagePath">Path Gambar OG</label>
-                  <input type="text" id="site-ogImagePath" name="site.ogImagePath" value={event.site.ogImagePath} placeholder="/og-image.svg" />
-                </div>
-                <div class="form-field">
-                  <label for="site-locale">Lokal</label>
-                  <input type="text" id="site-locale" name="site.locale" value={event.site.locale} placeholder="id_ID" />
-                </div>
-                <div class="form-field">
-                  <label for="site-lang">Bahasa</label>
-                  <input type="text" id="site-lang" name="site.lang" value={event.site.lang} placeholder="id" />
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Actions -->
-            <div class="form-actions animate-on-scroll">
-              <button type="button" id="btn-save" class="clay-btn clay-btn--green">
-                💾 Simpan Konfigurasi
-              </button>
+      <form id="event-form" class="event-form" autocomplete="off">
+        <!-- Baby Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">👶</span>
+            Data Anak
+          </legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="baby-firstName">Nama Depan</label>
+              <input
+                type="text"
+                id="baby-firstName"
+                name="baby.firstName"
+                value={event.baby.firstName}
+                required
+              />
             </div>
-            <div id="save-status" class="save-status" style="display:none"></div>
+            <div class="form-field">
+              <label for="baby-middleName">Nama Tengah</label>
+              <input
+                type="text"
+                id="baby-middleName"
+                name="baby.middleName"
+                value={event.baby.middleName}
+              />
+            </div>
+            <div class="form-field">
+              <label for="baby-lastName">Nama Belakang</label>
+              <input
+                type="text"
+                id="baby-lastName"
+                name="baby.lastName"
+                value={event.baby.lastName}
+              />
+            </div>
+            <div class="form-field">
+              <label for="baby-birthDate">Tanggal Lahir</label>
+              <input
+                type="date"
+                id="baby-birthDate"
+                name="baby.birthDate"
+                value={event.baby.birthDate}
+                required
+              />
+            </div>
+          </div>
+        </fieldset>
 
-          </form>
+        <!-- Parents Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">👨‍👩‍👦</span>
+            Data Orang Tua
+          </legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="parents-father">Nama Ayah</label>
+              <input
+                type="text"
+                id="parents-father"
+                name="parents.father"
+                value={event.parents.father}
+                required
+              />
+            </div>
+            <div class="form-field">
+              <label for="parents-mother">Nama Ibu</label>
+              <input
+                type="text"
+                id="parents-mother"
+                name="parents.mother"
+                value={event.parents.mother}
+                required
+              />
+            </div>
+          </div>
+        </fieldset>
 
+        <!-- Event Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">🎉</span>
+            Detail Acara
+          </legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="event-type">Jenis Acara</label>
+              <select id="event-type" name="type">
+                <option value="Aqiqah" selected={event.type === "Aqiqah"}
+                  >Aqiqah</option
+                >
+                <option
+                  value="Ulang Tahun"
+                  selected={event.type === "Ulang Tahun"}>Ulang Tahun</option
+                >
+                <option value="Syukuran" selected={event.type === "Syukuran"}
+                  >Syukuran</option
+                >
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="event-dateISO">Tanggal Acara</label>
+              <input
+                type="date"
+                id="event-dateISO"
+                name="dateISO"
+                value={event.dateISO}
+                required
+              />
+            </div>
+            <div class="form-field">
+              <label for="event-timeLabel">Waktu</label>
+              <input
+                type="text"
+                id="event-timeLabel"
+                name="timeLabel"
+                value={event.timeLabel}
+                placeholder="10.00 WIB – Selesai"
+                required
+              />
+            </div>
+            <div class="form-field">
+              <label for="event-timezone">Zona Waktu</label>
+              <input
+                type="text"
+                id="event-timezone"
+                name="timezone"
+                value={event.timezone}
+                placeholder="+07:00"
+                required
+              />
+            </div>
+            <div class="form-field form-field--full">
+              <label for="event-dateLabel">Label Tanggal</label>
+              <input
+                type="text"
+                id="event-dateLabel"
+                name="dateLabel"
+                value={event.dateLabel}
+                placeholder="Sabtu, 18 April 2026"
+                required
+              />
+            </div>
+            <div class="form-field form-field--full">
+              <label for="event-dresscode">Kode Berbusana</label>
+              <input
+                type="text"
+                id="event-dresscode"
+                name="dresscode"
+                value={event.dresscode}
+                placeholder="Busana Muslim / Sopan (kosongkan untuk sembunyikan)"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Venue Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">📍</span>
+            Lokasi
+          </legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="venue-name">Nama Tempat</label>
+              <input
+                type="text"
+                id="venue-name"
+                name="venue.name"
+                value={event.venue.name}
+                required
+              />
+            </div>
+            <div class="form-field">
+              <label for="venue-address">Alamat</label>
+              <input
+                type="text"
+                id="venue-address"
+                name="venue.address"
+                value={event.venue.address}
+                required
+              />
+            </div>
+            <div class="form-field form-field--full">
+              <label for="venue-mapsUrl">Tautan Google Maps</label>
+              <input
+                type="url"
+                id="venue-mapsUrl"
+                name="venue.mapsUrl"
+                value={event.venue.mapsUrl}
+                placeholder="https://maps.app.goo.gl/..."
+              />
+            </div>
+            <div class="form-field form-field--full">
+              <label for="venue-embedUrl">Tautan Embed Google Maps</label>
+              <input
+                type="url"
+                id="venue-embedUrl"
+                name="venue.embedUrl"
+                value={event.venue.embedUrl}
+                placeholder="https://maps.google.com/maps?q=..."
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Contact / RSVP Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">📱</span>
+            Kontak / RSVP
+          </legend>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="contact-whatsapp">No. WhatsApp</label>
+              <input
+                type="tel"
+                id="contact-whatsapp"
+                name="contact.whatsapp"
+                value={event.contact.whatsapp}
+                placeholder="628123456789"
+              />
+            </div>
+            <div class="form-field">
+              <label for="contact-name">Nama Kontak</label>
+              <input
+                type="text"
+                id="contact-name"
+                name="contact.name"
+                value={event.contact.name}
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Site / SEO Section -->
+        <fieldset class="form-section clay-white animate-on-scroll">
+          <legend class="form-legend">
+            <span class="legend-icon">🌐</span>
+            Situs / SEO
+          </legend>
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <label for="site-url">URL Situs</label>
+              <input
+                type="url"
+                id="site-url"
+                name="site.url"
+                value={event.site.url}
+                required
+              />
+            </div>
+            <div class="form-field">
+              <label for="site-ogImagePath">Path Gambar OG</label>
+              <input
+                type="text"
+                id="site-ogImagePath"
+                name="site.ogImagePath"
+                value={event.site.ogImagePath}
+                placeholder="/og-image.svg"
+              />
+            </div>
+            <div class="form-field">
+              <label for="site-locale">Lokal</label>
+              <input
+                type="text"
+                id="site-locale"
+                name="site.locale"
+                value={event.site.locale}
+                placeholder="id_ID"
+              />
+            </div>
+            <div class="form-field">
+              <label for="site-lang">Bahasa</label>
+              <input
+                type="text"
+                id="site-lang"
+                name="site.lang"
+                value={event.site.lang}
+                placeholder="id"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions animate-on-scroll">
+          <button type="button" id="btn-save" class="clay-btn clay-btn--green"
+            >💾 Simpan Konfigurasi</button
+          >
+          <a
+            href="/manage-template"
+            class="clay-btn clay-btn--yellow quick-link">📝 Edit Template</a
+          >
         </div>
-      </div>
 
-      <!-- Back link -->
-      <div class="section-wrapper" style="padding-top:0">
-        <div class="section-inner" style="text-align:center">
-          <a href="/admin" class="back-link">← Kembali ke dashboard</a>
-        </div>
-      </div>
+        <div id="save-status" class="save-status" style="display:none"></div>
+      </form>
     </div>
   </body>
 </html>
 
 <script>
   function getFormData(): Record<string, string> {
-    const form = document.getElementById('event-form') as HTMLFormElement;
+    const form = document.getElementById("event-form") as HTMLFormElement;
     const data: Record<string, string> = {};
-    const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select');
+    const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+      "input, select",
+    );
     inputs.forEach((el) => {
       data[el.name] = el.value;
     });
     return data;
   }
 
-  function showStatus(message: string, type: 'success' | 'error') {
-    const el = document.getElementById('save-status')!;
+  function showStatus(message: string, type: "success" | "error") {
+    const el = document.getElementById("save-status")!;
     el.textContent = message;
     el.className = `save-status save-status--${type}`;
-    el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 4000);
+    el.style.display = "block";
+    setTimeout(() => {
+      el.style.display = "none";
+    }, 4000);
   }
 
   // Save button
-  document.getElementById('btn-save')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btn-save') as HTMLButtonElement;
+  document.getElementById("btn-save")?.addEventListener("click", async () => {
+    const btn = document.getElementById("btn-save") as HTMLButtonElement;
     const original = btn.innerHTML;
-    btn.innerHTML = '⏳ Saving...';
+    btn.innerHTML = "⏳ Menyimpan...";
     btn.disabled = true;
 
     try {
       const data = getFormData();
-      const res = await fetch('/api/save-event', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/save-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       const result = await res.json();
 
       if (result.ok) {
-        showStatus('✅ Konfigurasi tersimpan ke event.ts! Restart server pengembangan untuk melihat perubahan.', 'success');
+        showStatus(
+          "✅ Konfigurasi tersimpan ke event.ts! Restart server dev untuk melihat perubahan.",
+          "success",
+        );
       } else {
-        showStatus(`❌ Gagal: ${result.error}`, 'error');
+        showStatus(`❌ Gagal: ${result.error}`, "error");
       }
     } catch (err) {
-      showStatus(`❌ Kesalahan jaringan: ${err instanceof Error ? err.message : 'Tidak diketahui'}`, 'error');
+      showStatus(
+        `❌ Kesalahan jaringan: ${err instanceof Error ? err.message : "Tidak diketahui"}`,
+        "error",
+      );
     } finally {
       btn.innerHTML = original;
       btn.disabled = false;
@@ -265,165 +407,180 @@ if (!session?.value) {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+          entry.target.classList.add("visible");
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.12 }
+    { threshold: 0.12 },
   );
-  document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+  document
+    .querySelectorAll(".animate-on-scroll")
+    .forEach((el) => observer.observe(el));
 </script>
 
 <style>
-  /* ---- Setup Page ---- */
-  .setup-page {
-    min-height: 100vh;
-    padding-bottom: var(--space-xl);
-  }
-
-  /* ---- Header ---- */
-  .setup-header {
-    background: radial-gradient(ellipse at 50% 60%, #48CAE4 0%, #0096C7 40%, #006B8F 100%);
-    padding: 3rem 1rem 4rem;
-    text-align: center;
-  }
-
-  .setup-header-inner {
-    max-width: 900px;
+  .event-page {
+    max-width: 640px;
     margin: 0 auto;
+    padding: 0 1rem 4rem;
+    min-height: 100dvh;
+  }
+
+  .page-header {
+    padding: 1.25rem 0 1.4rem;
+  }
+
+  .header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-green);
+    transition: transform 0.15s ease;
+  }
+
+  .back-link:hover {
+    transform: translateX(-3px);
+  }
+
+  .logout-form {
+    margin: 0;
+  }
+
+  .logout-btn {
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .logout-btn:hover {
+    background: rgba(251, 133, 0, 0.15);
+    color: var(--color-coral);
+  }
+
+  .header-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
+    align-items: flex-start;
+    gap: 0.35rem;
   }
 
-  .setup-title {
-    font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 700;
-    color: #fff;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
-  }
-
-  .setup-subtitle {
-    font-size: 1rem;
-    color: rgba(255,255,255,0.8);
-    font-weight: 400;
-  }
-
-  .level-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  .header-badge {
+    display: inline-block;
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.95);
-    background: rgba(255,255,255,0.22);
-    border: 1.5px solid rgba(255,255,255,0.4);
-    border-radius: 9999px;
-    padding: 5px 16px;
-    backdrop-filter: blur(6px);
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(0, 150, 199, 0.2);
+    border-radius: var(--radius-pill);
+    padding: 5px 14px;
   }
 
-  .level-dot {
-    width: 8px;
-    height: 8px;
-    background: #FFB703;
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse-glow 1.5s ease-in-out infinite;
+  .header-title {
+    font-size: clamp(1.55rem, 4.4vw, 2.2rem);
+    color: var(--color-dark);
+    line-height: 1.2;
   }
 
-  /* ---- Form Sections ---- */
-  .setup-form {
+  .header-subtitle {
+    font-size: 0.92rem;
+    color: var(--color-muted);
+    max-width: 56ch;
+  }
+
+  .event-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    margin-top: -2rem;
+    gap: 1rem;
   }
 
   .form-section {
     border: none;
     border-radius: var(--radius-lg);
-    padding: 28px 24px;
-    position: relative;
+    padding: 20px;
   }
 
   .form-legend {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.15rem;
+    gap: 8px;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--color-dark);
-    padding: 0 4px;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.9rem;
+    padding: 0 2px;
   }
 
   .legend-icon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
-  /* ---- Form Grid ---- */
   .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 0.85rem;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
   .form-field--full {
     grid-column: 1 / -1;
   }
 
-  @media (max-width: 560px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ---- Form Fields ---- */
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
   .form-field label {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-muted);
+    color: var(--color-green);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 
   .form-field input,
   .form-field select {
+    width: 100%;
     font-family: var(--font-main);
-    font-size: 1rem;
+    font-size: 0.96rem;
     font-weight: 500;
     color: var(--color-dark);
-    background: rgba(255,255,255,0.8);
-    border: 2px solid rgba(0,150,199,0.2);
+    background: rgba(255, 255, 255, 0.84);
+    border: 2px solid rgba(0, 150, 199, 0.2);
     border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    padding: 11px 13px;
     outline: none;
-    width: 100%;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .form-field input::placeholder {
+    color: #8ea7b6;
   }
 
   .form-field input:focus,
   .form-field select:focus {
     border-color: var(--color-green);
-    box-shadow:
-      0 0 0 3px rgba(0,150,199,0.15),
-      inset 0 2px 4px rgba(0,0,0,0.04);
-  }
-
-  .form-field input::placeholder {
-    color: #aac4cf;
-    font-weight: 400;
+    box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.15);
   }
 
   .form-field select {
@@ -431,67 +588,70 @@ if (!session?.value) {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235E7C8A' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
+    background-position: right 12px center;
+    padding-right: 34px;
   }
 
-  /* ---- Form Actions ---- */
   .form-actions {
+    margin-top: 0.5rem;
     display: flex;
-    gap: 1rem;
-    justify-content: center;
+    gap: 0.8rem;
     flex-wrap: wrap;
-    padding: 0.5rem 0 1rem;
+    justify-content: flex-start;
   }
 
-  /* ---- Save Status ---- */
-  .save-status {
-    text-align: center;
-    padding: 12px 20px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
+  .form-actions .clay-btn {
     font-size: 0.95rem;
-    margin-top: 0.5rem;
+    padding: 12px 22px;
+  }
+
+  .quick-link {
+    color: var(--color-dark);
+    text-decoration: none;
+  }
+
+  .save-status {
+    margin-top: 0.25rem;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
   .save-status--success {
     background: rgba(0, 200, 83, 0.12);
     color: #00a854;
-    border: 1.5px solid rgba(0, 200, 83, 0.3);
+    border: 1.5px solid rgba(0, 200, 83, 0.26);
   }
 
   .save-status--error {
     background: rgba(255, 59, 48, 0.12);
     color: #d32f2f;
-    border: 1.5px solid rgba(255, 59, 48, 0.3);
+    border: 1.5px solid rgba(255, 59, 48, 0.26);
   }
 
-  /* ---- Back Link ---- */
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--color-green);
-    padding: 10px 20px;
-    border-radius: var(--radius-pill);
-    background: rgba(0,150,199,0.08);
-    transition: background 0.2s ease;
-  }
-
-  .back-link:hover {
-    background: rgba(0,150,199,0.16);
-  }
-
-  @media (max-width: 480px) {
-    .form-section {
-      padding: 20px 16px;
+  @media (max-width: 680px) {
+    .form-grid {
+      grid-template-columns: 1fr;
     }
 
-    .form-actions .clay-btn {
-      font-size: 0.95rem;
-      padding: 12px 24px;
+    .header-content {
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .form-section {
+      padding: 16px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .form-actions .clay-btn,
+    .form-actions .quick-link {
+      width: 100%;
     }
   }
 </style>
