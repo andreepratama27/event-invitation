@@ -815,6 +815,7 @@ const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
   let guests = [];
   let activeFilter = 'all';
   let searchQuery = '';
+  let liveTemplate = waTemplate;
 
   // ── DOM refs ─────────────────────────────────────────
   const listEl = document.getElementById('guest-list');
@@ -1073,12 +1074,23 @@ const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
 
   // ── WhatsApp Send ───────────────────────────────────
   async function sendWhatsApp(guest) {
+    try {
+      const res = await fetch('/api/save-message-template');
+      const json = await res.json();
+      if (json?.ok && typeof json.template === 'string' && json.template.trim()) {
+        liveTemplate = json.template;
+      }
+    } catch (_) {}
+
     const guestUri = encodeURIComponent(guest.guest_name);
-    const msg = waTemplate
+    const msg = liveTemplate
       .split('{GUEST}').join(guest.guest_name)
       .split('{GUEST_URI}').join(guestUri);
-    const url = `https://wa.me/${guest.phone_number}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    const safeMsg = Array.from(msg).join('');
+    const waUrl = new URL('https://api.whatsapp.com/send');
+    waUrl.searchParams.set('phone', guest.phone_number);
+    waUrl.searchParams.set('text', safeMsg);
+    window.open(waUrl.toString(), '_blank');
 
     await updateGuest(guest.id, { is_sent: true });
     toast('📨 Membuka WhatsApp...');
