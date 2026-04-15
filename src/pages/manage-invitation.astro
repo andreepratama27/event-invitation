@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
 import { event } from '../config/event';
-import { getWhatsAppMessageTemplate } from '../config/message-template';
+import { getDefaultMessageTemplate } from '../config/message-template';
+import { supabaseAdmin } from '../db/supabase';
 
 export const prerender = false;
 
@@ -12,7 +13,16 @@ if (!session?.value) {
 }
 
 const { baby, type: eventType, site } = event;
-const waTemplate = getWhatsAppMessageTemplate();
+
+const { data } = await supabaseAdmin
+  .from('message_template')
+  .select('content')
+  .eq('is_active', true)
+  .order('updated_at', { ascending: false })
+  .limit(1)
+  .single();
+
+const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
 ---
 
 <html lang={site.lang}>
