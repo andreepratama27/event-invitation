@@ -32,7 +32,7 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body>
+  <body data-current-template={currentTemplate} data-default-template={defaultTemplate}>
     <div class="template-page">
       <header class="page-header">
         <a href="/admin" class="back-link">← Dashboard</a>
@@ -52,12 +52,47 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
           <span
             ><strong>{"{GUEST_URI}"}</strong> = nama tamu untuk query URL</span
           >
+          <div class="insert-buttons">
+            <button
+              id="btn-insert-guest"
+              type="button"
+              class="clay-btn clay-btn--sm clay-btn--blue"
+              aria-label="Insert Guest Placeholder"
+            >
+              + { "{GUEST}" }
+            </button>
+            <button
+              id="btn-insert-guest-uri"
+              type="button"
+              class="clay-btn clay-btn--sm clay-btn--blue"
+              aria-label="Insert Guest URI Placeholder"
+            >
+              + { "{GUEST_URI}" }
+            </button>
+          </div>
         </div>
 
-        <label for="template-input" class="input-label">Isi Template</label>
-        <textarea id="template-input" class="template-input" rows="14"
-          >{currentTemplate}</textarea
-        >
+        <label for="editor" class="input-label">Isi Template</label>
+        <div id="editor-container" aria-label="WhatsApp Message Editor">
+          <div id="editor-toolbar-emoji">
+            <button
+              id="btn-emoji"
+              type="button"
+              class="emoji-toggle-btn"
+              aria-label="Insert emoji"
+              aria-expanded="false"
+              aria-controls="emoji-picker-popover"
+            >😊 Emoji</button>
+            <div
+              id="emoji-picker-popover"
+              class="emoji-popover"
+              role="dialog"
+              aria-label="Emoji picker"
+              hidden
+            ></div>
+          </div>
+          <div id="editor"></div>
+        </div>
 
         <div class="actions">
           <button
@@ -73,21 +108,175 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
         <div id="save-status" class="save-status" style="display:none"></div>
 
         <details class="preview-box">
-          <summary>Preview default saat ini</summary>
-          <pre>{defaultTemplate}</pre>
+          <summary>Live Preview (Format WhatsApp)</summary>
+          <pre id="live-preview"></pre>
         </details>
       </main>
     </div>
   </body>
 </html>
 
-<script define:vars={{ defaultTemplate }}>
-  const input = document.getElementById("template-input");
-  const saveBtn = document.getElementById("btn-save");
+<script>
+  import Quill from "quill";
+  import "quill/dist/quill.snow.css";
+  import "emoji-picker-element";
+  import { deltaToWhatsApp, whatsAppToDelta } from "../utils/whatsapp-delta";
+
+  // Using a custom module matcher to strip non-whatsapp formats on paste
+  const Clipboard = Quill.import("modules/clipboard");
+  class PlainClipboard extends Clipboard {
+    onPaste(e: ClipboardEvent) {
+      e.preventDefault();
+      const text = e.clipboardData?.getData("text/plain");
+      if (text) {
+        // Simple plain text paste, but retaining *bold* conversion if we wanted
+        // For now just insert plain text at current selection
+        const range = this.quill.getSelection();
+        if (range) {
+          this.quill.insertText(range.index, text);
+          this.quill.setSelection(range.index + text.length, 0);
+        }
+      }
+    }
+  }
+  Quill.register("modules/clipboard", PlainClipboard, true);
+
+  const editorEl = document.getElementById("editor");
+  const saveBtn = document.getElementById("btn-save") as HTMLButtonElement;
   const defaultBtn = document.getElementById("btn-default");
   const statusEl = document.getElementById("save-status");
+  const previewEl = document.getElementById("live-preview");
 
-  function showStatus(message, type) {
+  const btnInsertGuest = document.getElementById("btn-insert-guest");
+  const btnInsertGuestUri = document.getElementById("btn-insert-guest-uri");
+
+  const initialTemplate = document.body.dataset.currentTemplate || "";
+  const defaultTemplate = document.body.dataset.defaultTemplate || "";
+
+  let quill: Quill;
+
+  if (editorEl) {
+    quill = new Quill("#editor", {
+      theme: "snow",
+      modules: {
+        toolbar: [
+          ["bold", "italic", "strike"],
+          ["blockquote", "code-block"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["clean"],
+        ],
+        clipboard: {
+          matchVisual: false
+        }
+      },
+      placeholder: "Tulis template pesan WhatsApp...",
+    });
+
+    // Initialize with current template parsed to delta
+    quill.setContents(whatsAppToDelta(initialTemplate));
+
+    quill.on("text-change", () => {
+      if (previewEl) {
+        const text = deltaToWhatsApp(quill.getContents());
+        previewEl.textContent = text;
+      }
+      
+      const textLength = quill.getText().trim().length;
+      if (saveBtn) {
+        saveBtn.disabled = textLength === 0;
+      }
+    });
+
+    // Initial preview update
+    if (previewEl) {
+      previewEl.textContent = deltaToWhatsApp(quill.getContents());
+    }
+  }
+
+  // Insert Placeholders
+  function insertPlaceholder(text: string) {
+    if (!quill) return;
+    const range = quill.getSelection(true);
+    if (range) {
+      quill.insertText(range.index, text);
+      quill.setSelection(range.index + text.length, 0);
+    }
+  }
+
+  btnInsertGuest?.addEventListener("click", () => insertPlaceholder("{GUEST}"));
+  btnInsertGuestUri?.addEventListener("click", () => insertPlaceholder("{GUEST_URI}"));
+
+  // ── Emoji Picker ────────────────────────────────────────────────────────────
+  const emojiBtn = document.getElementById("btn-emoji");
+  const emojiPopover = document.getElementById("emoji-picker-popover");
+
+  // Lazily create the <emoji-picker> element on first open
+  let pickerMounted = false;
+
+  function mountPicker() {
+    if (pickerMounted || !emojiPopover) return;
+    const picker = document.createElement("emoji-picker");
+    // Use a local data URL so no external fetch is needed (emoji-picker-element
+    // bundles its own data; the CDN fallback is only for the database worker)
+    emojiPopover.appendChild(picker);
+    picker.addEventListener("emoji-click", (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const emoji: string = detail?.unicode ?? detail?.emoji?.unicode ?? "";
+      if (!emoji || !quill) return;
+      const range = quill.getSelection(true);
+      quill.insertText(range.index, emoji);
+      quill.setSelection(range.index + emoji.length, 0);
+      closeEmojiPicker();
+    });
+    pickerMounted = true;
+  }
+
+  function openEmojiPicker() {
+    if (!emojiPopover || !emojiBtn) return;
+    mountPicker();
+    emojiPopover.hidden = false;
+    emojiBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closeEmojiPicker() {
+    if (!emojiPopover || !emojiBtn) return;
+    emojiPopover.hidden = true;
+    emojiBtn.setAttribute("aria-expanded", "false");
+  }
+
+  emojiBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (emojiPopover?.hidden === false) {
+      closeEmojiPicker();
+    } else {
+      // Save current selection before picker steals focus
+      quill?.getSelection(true);
+      openEmojiPicker();
+    }
+  });
+
+  // Close on outside click
+  document.addEventListener("click", (e) => {
+    if (
+      emojiPopover &&
+      !emojiPopover.hidden &&
+      !emojiPopover.contains(e.target as Node) &&
+      e.target !== emojiBtn
+    ) {
+      closeEmojiPicker();
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && emojiPopover && !emojiPopover.hidden) {
+      closeEmojiPicker();
+      quill?.focus();
+    }
+  });
+
+  function showStatus(message: string, type: string) {
+    if (!statusEl) return;
     statusEl.textContent = message;
     statusEl.className = `save-status save-status--${type}`;
     statusEl.style.display = "block";
@@ -97,7 +286,9 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
   }
 
   defaultBtn?.addEventListener("click", () => {
-    input.value = defaultTemplate;
+    if (quill) {
+      quill.setContents(whatsAppToDelta(defaultTemplate));
+    }
     showStatus(
       "ℹ️ Template dikembalikan ke default. Jangan lupa simpan.",
       "info",
@@ -105,7 +296,14 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
   });
 
   saveBtn?.addEventListener("click", async () => {
-    const template = input.value;
+    if (!quill) return;
+    const template = deltaToWhatsApp(quill.getContents());
+    
+    if (!template.trim()) {
+      showStatus("❌ Template tidak boleh kosong.", "error");
+      return;
+    }
+
     const original = saveBtn.textContent;
     saveBtn.textContent = "⏳ Menyimpan...";
     saveBtn.disabled = true;
@@ -119,10 +317,7 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
       const result = await res.json();
 
       if (result.ok) {
-        showStatus(
-          "✅ Template berhasil disimpan!",
-          "success",
-        );
+        showStatus("✅ Template berhasil disimpan!", "success");
       } else {
         showStatus(`❌ Gagal: ${result.error}`, "error");
       }
@@ -193,23 +388,154 @@ const currentTemplate = data?.content?.trim() || defaultTemplate;
     color: var(--color-green);
   }
 
-  .template-input {
-    width: 100%;
-    min-height: 280px;
-    resize: vertical;
-    border-radius: var(--radius-sm);
-    border: 2px solid rgba(0, 150, 199, 0.2);
-    padding: 0.85rem;
-    font-family: var(--font-main);
-    line-height: 1.5;
-    color: var(--color-dark);
-    background: rgba(255, 255, 255, 0.85);
-    outline: none;
+  .insert-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
 
-  .template-input:focus {
+  .clay-btn--sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+  }
+
+  #editor-container {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba(0, 150, 199, 0.2);
+    background: rgba(255, 255, 255, 0.85);
+    overflow: hidden;
+  }
+
+  #editor-container:focus-within {
     border-color: var(--color-green);
     box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.15);
+  }
+
+  :global(.ql-toolbar) {
+    border: none !important;
+    border-bottom: 2px solid rgba(0, 150, 199, 0.2) !important;
+    background: rgba(255, 255, 255, 0.95);
+    font-family: var(--font-main) !important;
+  }
+
+  :global(.ql-container) {
+    border: none !important;
+    font-family: var(--font-main) !important;
+    font-size: 16px !important; /* Must be ≥16px to prevent mobile zoom on focus */
+    line-height: 1.5 !important;
+    min-height: 280px;
+  }
+
+  :global(.ql-editor) {
+    min-height: 280px;
+    padding: 0.85rem !important;
+  }
+
+  :global(.ql-editor.ql-blank::before) {
+    font-style: normal !important;
+    color: var(--color-muted) !important;
+  }
+
+  /* Toolbar button hover/active states */
+  :global(.ql-toolbar button:hover),
+  :global(.ql-toolbar button.ql-active) {
+    color: var(--color-green) !important;
+  }
+
+  :global(.ql-toolbar button:hover .ql-stroke),
+  :global(.ql-toolbar button.ql-active .ql-stroke) {
+    stroke: var(--color-green) !important;
+  }
+
+  :global(.ql-toolbar button:hover .ql-fill),
+  :global(.ql-toolbar button.ql-active .ql-fill) {
+    fill: var(--color-green) !important;
+  }
+
+  /* Blockquote styling inside editor */
+  :global(.ql-editor blockquote) {
+    border-left: 3px solid var(--color-green) !important;
+    padding-left: 0.75rem !important;
+    color: var(--color-muted) !important;
+    margin: 0 !important;
+  }
+
+  /* Code block styling inside editor */
+  :global(.ql-editor pre.ql-syntax) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--color-dark) !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* Inline code styling */
+  :global(.ql-editor code) {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border-radius: 3px !important;
+    padding: 0.1em 0.3em !important;
+    font-size: 0.88em !important;
+  }
+
+  /* ── Emoji button & popover ─────────────────────────── */
+  #editor-toolbar-emoji {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border-bottom: 2px solid rgba(0, 150, 199, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .emoji-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: var(--font-main);
+    color: var(--color-dark);
+    background: rgba(0, 150, 199, 0.07);
+    border: 1.5px solid rgba(0, 150, 199, 0.22);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .emoji-toggle-btn:hover,
+  .emoji-toggle-btn[aria-expanded="true"] {
+    background: rgba(0, 150, 199, 0.15);
+    border-color: var(--color-green);
+    color: var(--color-green);
+  }
+
+  .emoji-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    border-radius: var(--radius-sm);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.14),
+      0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  /* Scope emoji-picker-element CSS variables to match the clay theme */
+  :global(emoji-picker) {
+    --background: #fff;
+    --border-color: rgba(0, 150, 199, 0.18);
+    --indicator-color: var(--color-green, #00b09b);
+    --input-border-color: rgba(0, 150, 199, 0.22);
+    --input-font-color: #333;
+    --outline-color: rgba(0, 150, 199, 0.3);
+    --category-emoji-size: 1.1rem;
+    --emoji-size: 1.4rem;
+    --num-columns: 8;
+    width: 320px;
+    max-width: calc(100vw - 2rem);
   }
 
   .actions {

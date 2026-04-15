@@ -16,6 +16,8 @@
     "@supabase/supabase-js": "^2.103.0",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.0.8",
+    "emoji-picker-element": "^1.29.1",
+    "quill": "^2.0.3",
     "tailwindcss": "^4.2.2"
   }
 }
