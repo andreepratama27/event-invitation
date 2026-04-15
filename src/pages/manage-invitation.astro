@@ -92,6 +92,9 @@ const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
               />
             </div>
           </div>
+          <button type="button" id="btn-pick-contact" class="clay-btn clay-btn--blue pick-contact-btn" style="display: none;">
+            📇 Pilih dari Kontak
+          </button>
           <button type="submit" class="clay-btn clay-btn--green add-btn">
             ➕ Tambah Tamu
           </button>
@@ -366,6 +369,32 @@ const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
   .form-input:focus {
     border-color: var(--color-green);
     box-shadow: 0 0 0 3px rgba(0, 150, 199, 0.15);
+  }
+
+  .pick-contact-btn {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 10px 24px;
+    margin-bottom: 10px;
+  }
+
+  .clay-btn--blue {
+    color: #fff;
+    background: linear-gradient(145deg, var(--color-blue-light, #48CAE4) 0%, var(--color-blue, #0096C7) 100%);
+    box-shadow:
+      0 8px 0 var(--color-blue-dark, #0077B6),
+      0 12px 20px rgba(0, 0, 0, 0.2),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.10),
+      inset 0 4px 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .clay-btn--blue:active {
+    transform: translateY(6px);
+    box-shadow:
+      0 2px 0 var(--color-blue-dark, #0077B6),
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      inset 0 -2px 5px rgba(0, 0, 0, 0.10),
+      inset 0 3px 7px rgba(255, 255, 255, 0.45);
   }
 
   .add-btn {
@@ -1168,6 +1197,33 @@ const waTemplate = data?.content?.trim() || getDefaultMessageTemplate();
       }
     );
   });
+
+  // ── Contact Picker API ───────────────────────────────
+  const pickContactBtn = document.getElementById('btn-pick-contact');
+
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    pickContactBtn.style.display = '';
+
+    pickContactBtn.addEventListener('click', async () => {
+      try {
+        const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+        if (contacts.length === 0) return;
+
+        const contact = contacts[0];
+        const contactName = (contact.name || []).filter(n => n.length > 0)[0];
+        const contactTel = (contact.tel || []).filter(t => t.length > 0)[0];
+
+        if (contactName) nameInput.value = contactName;
+        if (contactTel) phoneInput.value = contactTel.replace(/\s/g, '');
+
+        toast('📇 Kontak berhasil dipilih!');
+      } catch (err) {
+        if (err.name !== 'InvalidStateError') {
+          toast('❌ Gagal memilih kontak');
+        }
+      }
+    });
+  }
 
   // ── Init ─────────────────────────────────────────────
   fetchGuests();
